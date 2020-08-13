@@ -44,17 +44,16 @@ addElementsOnPage();
 const bigPicture = document.querySelector('.big-picture');
 const allPictureLink = document.querySelectorAll('.picture__link');
 
-const addPictureLinkHandler = element => {
+const pictureLinkClickHandler = element => {
   element.onclick = evt => {
     evt.preventDefault();
     createBigPicture(element);
   };
 };
 
-allPictureLink.forEach(element => addPictureLinkHandler(element));
+allPictureLink.forEach(element => pictureLinkClickHandler(element));
 
 const createBigPicture = element => {
-
   bigPicture.classList.remove('hidden');
 
   const elementImg = element.querySelector('.picture__img');
@@ -98,13 +97,21 @@ const closeButton = bigPicture.querySelector('.big-picture__cancel');
 closeButton.onclick = () => bigPicture.classList.add('hidden');
 
 window.onkeydown = evt => {
-  if (evt.keyCode === 27) bigPicture.classList.add('hidden');
+  if (evt.code === "Escape") bigPicture.classList.add('hidden');
 };
 
+/*likes counter*/
 
+const likesCount = document.querySelector('.likes-count');
 
-
-
+likesCount.onclick = () => {
+  if (likesCount.classList.contains('likes-count--active')) {
+    likesCount.textContent--;
+  } else {
+    likesCount.textContent++;
+  }
+  likesCount.classList.toggle('likes-count--active');
+};
 
 
 
