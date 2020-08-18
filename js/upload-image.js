@@ -4,6 +4,7 @@
   const inputFile = document.getElementById('upload-file');
   const imgOverlay = document.querySelector('.img-upload__overlay');
   const preview = document.querySelector('.img-upload__preview img');
+  const miniatures = document.querySelectorAll('.effects__preview');
   const fileTypes = ['gif', 'jpg', 'jpeg', 'png'];
 
   /*upload image*/
@@ -21,6 +22,9 @@
 
       reader.addEventListener('load', () => {
         preview.src = reader.result;
+        miniatures.forEach(elem =>{
+          elem.style.backgroundImage = 'url(' + reader.result + ')';
+        });
       });
 
       reader.readAsDataURL(file);
@@ -36,20 +40,5 @@
   inputFile.addEventListener('change', () => {
     imageSelection();
     showOverlay();
-  })
-
-  /*hidden overlay and reset input value*/
-
-  const cancelButton = document.getElementById('upload-cancel');
-
-  const cancelOverlay = () => {
-    imgOverlay.classList.add('hidden');
-    inputFile.value = "";
-  };
-
-  cancelButton.addEventListener('click', cancelOverlay);
-
-  window.addEventListener('keydown', evt => {
-    if (evt.code === "Escape") cancelOverlay();
   });
 })()

@@ -7,6 +7,7 @@
   const scaleLine = document.querySelector('.scale__line');
   const scalePin = document.querySelector('.scale__pin');
   const scaleLevel = document.querySelector('.scale__level');
+  const scaleInput = document.querySelector('.scale__value');
 
   const onMouseDown = evt => {
     evt.preventDefault();
@@ -27,15 +28,15 @@
 
       scalePin.style.left = (scalePin.offsetLeft - shiftX) + 'px';
 
-      if (parseInt(scalePin.style.left, 10) < scalePinPositionLimits.min) {
+      if (parseInt(scalePin.style.left) < scalePinPositionLimits.min) {
         scalePin.style.left = scalePinPositionLimits.min + 'px';
       }
-      if (parseInt(scalePin.style.left, 10) > scalePinPositionLimits.max) {
+      if (parseInt(scalePin.style.left) > scalePinPositionLimits.max) {
         scalePin.style.left = scalePinPositionLimits.max + 'px';
       }
 
-      scaleLevel.style.width = (parseInt(scalePin.style.left, 10) / scalePinPositionLimits.max) * 100 + "%";
-      changeInputValue();
+      scaleLevel.style.width = (parseInt(scalePin.style.left) / scalePinPositionLimits.max) * 100 + "%";
+      createChangeEvent();
     };
 
     let onMouseUp = upEvt => {
@@ -64,16 +65,28 @@
       }
       scalePin.style.left = positionValueClick;
       scaleLevel.style.width = positionValueClick;
-      changeInputValue();
+      createChangeEvent();
     }
   });
 
-  /*change input value*/
+  /*scalePin set start position*/
 
-  const scaleInput = document.querySelector('.scale__value');
-
-  const changeInputValue = () => {
-    scaleInput.value = parseInt(scaleLevel.style.width, 10);
+  window.sliderSetStartPosition = () => {
+    const scalePin = document.querySelector('.scale__pin');
+    const scaleLevel = document.querySelector('.scale__level');
+    scalePin.style.left = '100%';
+    scaleLevel.style.width = '100%'
   }
 
+  /*change input value*/
+
+  const createChangeEvent = () => {
+    const event = new Event('change');
+    scaleInput.dispatchEvent(event);
+    changeInputValue();
+  }
+
+  const changeInputValue = () => {
+    scaleInput.value = parseInt(scaleLevel.style.width);
+  }
 })();
