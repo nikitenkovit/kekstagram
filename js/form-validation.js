@@ -1,59 +1,52 @@
 'use strict';
 (function () {
-  const textHashtags = document.querySelector('.text__hashtags');
+  const userHashtags = document.querySelector('.text__hashtags');
   const MAXIMUM_HASHTAGS = 5;
-  const COLOR_ERROR = 'red';
-  const COLOR_DEFAULT = 'rgb(118, 118, 118)';
-  let isNumberOfHashtagsOk = true;
-  let isHashtagPresent = true;
+  const HASHTAG_MAX_LENGTH = 20;
+  const BORDER_COLOR = {
+    COLOR_ERROR: () => userHashtags.style.borderColor = 'red',
+    COLOR_DEFAULT: () => userHashtags.style.borderColor = 'rgb(118, 118, 118)'
+  };
 
-  const borderColorError = () => textHashtags.style.borderColor = COLOR_ERROR;
-  const borderColorDefault = () => textHashtags.style.borderColor = COLOR_DEFAULT;
+  const validityHashtags = () => {
+    let arrayHashtags = userHashtags.value.split(' ');
 
-  /*check the number of hashtags*/
+    if (!userHashtags.value) {
+      return '';
+    }
 
-  const checkNumberOfHashtags = () => {
-    let arrayHashtags = textHashtags.value.split(' ');
     if (arrayHashtags.length > MAXIMUM_HASHTAGS) {
-      textHashtags.setCustomValidity('Хэш-тегов должно быть не больше пяти');
-      borderColorError();
-      isNumberOfHashtagsOk = false;
-    } else {
-      isNumberOfHashtagsOk = true;
+      BORDER_COLOR.COLOR_ERROR();
+      return 'Хэш-тегов должно быть не больше пяти';
     }
-  }
 
-  /*check "#" at the beginning of the hashtag*/
-
-  const checkHashtagPresence = () => {
-    let arrayHashtags = textHashtags.value.split(' ');
-
-    arrayHashtags = arrayHashtags.every(elem => elem.startsWith('#'));
-
-    if (!arrayHashtags) {
-      textHashtags.setCustomValidity('Хэш-тег должен начинаться со знака "#"');
-      borderColorError();
-      isHashtagPresent = false;
-    } else {
-      isHashtagPresent = true;
+    for (let hashtag of arrayHashtags) {
+      if (!hashtag.startsWith('#')) {
+        BORDER_COLOR.COLOR_ERROR();
+        return 'Хэш-тег должен начинаться со знака "#"'
+      } else if (hashtag.startsWith('#') && hashtag.length < 2) {
+        BORDER_COLOR.COLOR_ERROR();
+        return 'Хэш-тег не должен состоять только из одного знака "#"'
+      } else if (hashtag.lastIndexOf('#') !== 0 || hashtag.indexOf(',') > -1) {
+        BORDER_COLOR.COLOR_ERROR();
+        return 'Хэш-теги должны разделяться пробелами'
+      } else if (hashtag.length > HASHTAG_MAX_LENGTH) {
+        BORDER_COLOR.COLOR_ERROR();
+        return 'Максимальная длина одного хэш-тега 20 символов, включая решётку'
+      }
     }
-  }
 
-  const checkAllConditions = () => {
-    if (isNumberOfHashtagsOk && isHashtagPresent) {
-      textHashtags.setCustomValidity('');
-      borderColorDefault();
+    let lowerCaseArray = window.utils.arrayToLowerCase(arrayHashtags);
+    if (!window.utils.checkDuplicatesInArray(lowerCaseArray)) {
+      BORDER_COLOR.COLOR_ERROR();
+      return 'Один и тот же хэш-тег не может быть использован дважды (хеш-теги не чувствительны в регистру)'
     }
-  }
 
-  textHashtags.addEventListener('change', () => {
-    checkHashtagPresence();
-    checkNumberOfHashtags();
-    checkAllConditions();
+    return ''
+  };
+
+  userHashtags.addEventListener('change', () => {
+    BORDER_COLOR.COLOR_DEFAULT();
+    userHashtags.setCustomValidity(validityHashtags());
   });
-
-
-  //console.log(textHashtagsValue)
-
-
 })()

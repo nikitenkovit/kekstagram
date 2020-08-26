@@ -107,6 +107,8 @@
   const inputFile = document.getElementById('upload-file');
   const imgOverlay = document.querySelector('.img-upload__overlay');
   const newUploadedImage = document.querySelector('.img-upload__preview img');
+  const textHashtags = document.querySelector('.text__hashtags');
+  const textDescription = document.querySelector('.text__description');
 
   newUploadedImage.addEventListener('load', () => {
     uploadedImage.style.transform = 'scale(' + ScaleParameter.DEFAULT / 100 + ')';
@@ -129,6 +131,8 @@
   cancelButton.addEventListener('click', cancelOverlay);
 
   window.addEventListener('keydown', evt => {
-    if (evt.code === "Escape") cancelOverlay();
+    if (evt.code === "Escape" && evt.target.tagName !== 'INPUT' && evt.target.tagName !== 'TEXTAREA') {
+      cancelOverlay();
+    }
   });
 })();
