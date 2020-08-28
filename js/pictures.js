@@ -18,7 +18,7 @@ const createNewElement = element => {
 
   newImg.src = element.url;
   newLikesNumber.textContent = getRandomNumber(15, 200);
-  newCommentsNumber.textContent = getRandomNumber(0, 2);
+  newCommentsNumber.textContent = getRandomNumber(6, commentsArray.length - 1);
   clonedElement.setAttribute("data-description", element.description);
 
   return clonedElement;
@@ -87,7 +87,7 @@ const createComments = numberOfComments => {
     const allAvatars = commentsList.querySelectorAll('.social__picture');
     allAvatars[i].src = 'img/avatar-' + getRandomNumber(1, 6) + '.svg'
     const allTextComments = commentsList.querySelectorAll('.social__text');
-    allTextComments[i].textContent = commentsArray[getRandomRoundNumber(0, 6)];
+    allTextComments[i].textContent = commentsArray[getRandomRoundNumber(0, commentsArray.length - 1)];
   }
 };
 

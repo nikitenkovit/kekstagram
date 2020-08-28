@@ -20,26 +20,29 @@
       return 'Хэш-тегов должно быть не больше пяти';
     }
 
-    for (let hashtag of arrayHashtags) {
-      if (!hashtag.startsWith('#')) {
+    for (let i = 0; i < arrayHashtags.length; i++) {
+      if (!arrayHashtags[i].startsWith('#')) {
         BORDER_COLOR.COLOR_ERROR();
-        return 'Хэш-тег должен начинаться со знака "#"'
-      } else if (hashtag.startsWith('#') && hashtag.length < 2) {
+        return 'Хэш-тег должен начинаться со знака "#": ' + arrayHashtags[i];
+      } else if (arrayHashtags[i].startsWith('#') && arrayHashtags[i].length < 2) {
         BORDER_COLOR.COLOR_ERROR();
-        return 'Хэш-тег не должен состоять только из одного знака "#"'
-      } else if (hashtag.lastIndexOf('#') !== 0 || hashtag.indexOf(',') > -1) {
+        return 'Хэш-тег не должен состоять только из одного знака "#": ' + arrayHashtags[i];
+      } else if (arrayHashtags[i].lastIndexOf('#') !== 0 || arrayHashtags[i].indexOf(',') > -1) {
         BORDER_COLOR.COLOR_ERROR();
-        return 'Хэш-теги должны разделяться пробелами'
-      } else if (hashtag.length > HASHTAG_MAX_LENGTH) {
+        return 'Хэш-теги должны разделяться пробелами: ' + arrayHashtags[i];
+      } else if (arrayHashtags[i].length > HASHTAG_MAX_LENGTH) {
         BORDER_COLOR.COLOR_ERROR();
-        return 'Максимальная длина одного хэш-тега 20 символов, включая решётку'
+        return 'Максимальная длина одного хэш-тега 20 символов, включая решётку: ' + arrayHashtags[i];
       }
-    }
 
-    let lowerCaseArray = window.utils.arrayToLowerCase(arrayHashtags);
-    if (!window.utils.checkDuplicatesInArray(lowerCaseArray)) {
-      BORDER_COLOR.COLOR_ERROR();
-      return 'Один и тот же хэш-тег не может быть использован дважды (хеш-теги не чувствительны в регистру)'
+      let currentHashtag = arrayHashtags[i].toLowerCase();
+      for (let j = i + 1; j < arrayHashtags.length; j++) {
+        let nextHashTag = arrayHashtags[j].toLowerCase();
+        if (currentHashtag === nextHashTag) {
+          BORDER_COLOR.COLOR_ERROR();
+          return 'Один и тот же хэш-тег не может быть использован дважды (хеш-теги не чувствительны в регистру): ' + arrayHashtags[i];
+        }
+      }
     }
 
     return ''
