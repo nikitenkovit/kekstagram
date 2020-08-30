@@ -71,12 +71,7 @@
 
   /*scalePin set start position*/
 
-  window.sliderSetStartPosition = () => {
-    const scalePin = document.querySelector('.scale__pin');
-    const scaleLevel = document.querySelector('.scale__level');
-    scalePin.style.left = '100%';
-    scaleLevel.style.width = '100%'
-  }
+  //window.
 
   /*change input value*/
 

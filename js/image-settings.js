@@ -68,7 +68,7 @@
   effectsList.addEventListener('change', evt => {
     setEffectName(evt);
     toggleScaleInput();
-    window.sliderSetStartPosition();
+    window.utils.sliderSetStartPosition();
     setEffectValue(LimitEffectValue.DEFAULT);
   });
 
@@ -113,7 +113,7 @@
   newUploadedImage.addEventListener('load', () => {
     uploadedImage.style.transform = 'scale(' + ScaleParameter.DEFAULT / 100 + ')';
     resizeInputValue.value = ScaleParameter.DEFAULT + '%';
-    window.sliderSetStartPosition();
+    window.utils.sliderSetStartPosition();
     imageUploadScale.classList.add('hidden');
   });
 
@@ -121,18 +121,10 @@
     inputFile.value = '';
     scaleInput.value = LimitEffectValue.DEFAULT;
     uploadedImage.style = '';
+    textHashtags.value = '';
+    textDescription.value = '';
   };
 
-  const cancelOverlay = () => {
-    imgOverlay.classList.add('hidden');
-    resetImageSettings();
-  };
-
-  cancelButton.addEventListener('click', cancelOverlay);
-
-  window.addEventListener('keydown', evt => {
-    if (evt.code === "Escape" && evt.target.tagName !== 'INPUT' && evt.target.tagName !== 'TEXTAREA') {
-      cancelOverlay();
-    }
-  });
+window.utils.closeButtonClickHandler(cancelButton, imgOverlay, resetImageSettings);
+window.utils.escKeydownHandler(imgOverlay, resetImageSettings);
 })();
