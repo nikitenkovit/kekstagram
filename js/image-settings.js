@@ -73,28 +73,14 @@
   });
 
   const setEffectValue = value => {
-    let effectValue = '';
-
-    switch (effectName) {
-      case 'chrome':
-        effectValue = 'grayscale(' + value / 100 + ')';
-        break;
-      case 'sepia':
-        effectValue = 'sepia(' + value / 100 + ')';
-        break;
-      case 'marvin':
-        effectValue = 'invert(' + value + '%' + ')';
-        break;
-      case 'phobos':
-        effectValue = 'blur(' + ((value / 100) * LimitEffectValue.PHOBOS_MAX).toFixed(2) + 'px)';
-        break;
-      case 'heat':
-        effectValue = 'brightness(' + ((value / 100 * (LimitEffectValue.HEAT_MAX - LimitEffectValue.HEAT_MIN)) + LimitEffectValue.HEAT_MIN).toFixed(2) + ')';
-        break;
-      default:
-        break;
-    }
-    uploadedImage.style.filter = effectValue;
+    const effectNameToEffectValue = {
+      'chrome': 'grayscale(' + value / 100 + ')',
+      'sepia': 'sepia(' + value / 100 + ')',
+      'marvin': 'invert(' + value + '%' + ')',
+      'phobos': 'blur(' + ((value / 100) * LimitEffectValue.PHOBOS_MAX).toFixed(2) + 'px)',
+      'heat': 'brightness(' + ((value / 100 * (LimitEffectValue.HEAT_MAX - LimitEffectValue.HEAT_MIN)) + LimitEffectValue.HEAT_MIN).toFixed(2) + ')'
+    };
+    uploadedImage.style.filter = effectNameToEffectValue[effectName];
   }
 
   scaleInput.addEventListener('change', () => {
@@ -125,6 +111,6 @@
     textDescription.value = '';
   };
 
-window.utils.closeButtonClickHandler(cancelButton, imgOverlay, resetImageSettings);
-window.utils.escKeydownHandler(imgOverlay, resetImageSettings);
+  window.utils.closeButtonClickHandler(cancelButton, imgOverlay, resetImageSettings);
+  window.utils.escKeydownHandler(imgOverlay, resetImageSettings);
 })();

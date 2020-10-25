@@ -69,10 +69,6 @@
     }
   });
 
-  /*scalePin set start position*/
-
-  //window.
-
   /*change input value*/
 
   const createChangeEvent = () => {
