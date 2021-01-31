@@ -13,16 +13,14 @@
     const file = inputFile.files[0];
     const fileName = file.name.toLowerCase();
 
-    const matches = fileTypes.some(function (name) {
-      return fileName.endsWith(name);
-    });
+    const matches = fileTypes.some(type => fileName.endsWith(type));
 
     if (matches) {
       const reader = new FileReader();
 
       reader.addEventListener('load', () => {
         preview.src = reader.result;
-        miniatures.forEach(elem =>{
+        miniatures.forEach(elem => {
           elem.style.backgroundImage = 'url(' + reader.result + ')';
         });
       });
