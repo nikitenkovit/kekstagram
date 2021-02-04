@@ -1,36 +1,30 @@
 import PictureView from "../view/picture.js";
-import BigPictureOverlayView from "../view/big-picture-overlay.js";
-import {render, RenderPosition, remove} from "../utils/render.js";
-import {UserAction, UpdateType} from "../const.js";
-
-const Mode = {
-  DEFAULT: `DEFAULT`,
-  MODAL_OPEN: `MODAL_OPEN`
-};
-
-export const State = {
-  SAVING: `SAVING`,
-  DELETING: `DELETING`,
-  ABORTING: `ABORTING`
-};
+import BigPictureOverlayPresenter from "./bigPictureOverlay";
+import {render, RenderPosition} from "../utils/render.js";
 
 export default class Picture {
-  constructor(pictureListContainer) { // added changeData and changeMode
+  constructor(pictureListContainer) {
     this._pictureListContainer = pictureListContainer;
-    // this._changeData = changeData;
-    // this._changeMode = changeMode;
 
     this._pictureComponent = null;
-    this._bigPictureOverlayComponent = null;
-    this._mode = Mode.DEFAULT;
+
+    this._showPopap = this._showPopap.bind(this);
   }
 
   init(picture) {
     this._picture = picture;
 
-    this._pictureComponent = new PictureView(picture);
-    this._bigPictureOverlayComponent = new BigPictureOverlayView(picture);
+    this._pictureComponent = new PictureView(this._picture);
+
+    this._pictureComponent.setClickHandler(this._showPopap);
 
     render(this._pictureListContainer, this._pictureComponent, RenderPosition.BEFOREEND);
+  }
+
+  _showPopap() {
+    const bigPictureOverlayPresenter = new BigPictureOverlayPresenter(this._pictureListContainer);
+    bigPictureOverlayPresenter.init(this._picture);
+
+    bigPictureOverlayPresenter.resetPopapHandlers();
   }
 }

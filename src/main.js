@@ -1,6 +1,8 @@
-import ImgUploadOverlayView from "./view/img-upload-overlay.js";
-import ImgUploadMessageDragndropView from "./view/img-upload-message-dragndrop.js";
-import ImgUploadMessageErrorView from "./view/img-upload-message-error.js";
+// import ImgUploadOverlayView from "./view/img-upload-overlay.js";
+// import ImgUploadMessageDragndropView from "./view/img-upload-message-dragndrop.js";
+// import ImgUploadMessageErrorView from "./view/img-upload-message-error.js";
+// import ImgUploadMessageProcessingView from "./view/img-upload-message-processing.js";
+
 import PicturesModel from "./model/pictures.js";
 import BoardPresenter from "./presenter/board.js";
 import {UpdateType} from "./const.js";

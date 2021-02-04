@@ -1,11 +1,11 @@
 import FilterView from "../view/filter.js";
 import ImgUploadMessageLoadingView from "../view/img-upload-message-loading.js";
-import ImgUploadMessageProcessingView from "../view/img-upload-message-processing.js";
 import PicturesContainerView from "../view/pictures-container";
 import UploadNewImgFormView from "../view/uploadNewImgForm.js";
 import PicturePresenter from "./picture.js";
+import NewImagePresenter from "./newImage";
 import {RenderPosition, render, remove} from "../utils/render.js";
-import {UpdateType} from "../const.js";
+import {UpdateType, FILE_TYPES} from "../const.js";
 
 export default class Board {
   constructor(container, picturesModel) {
@@ -14,16 +14,19 @@ export default class Board {
     this._isLoading = true;
 
     this._filterComponent = null;
-    this._messageProcessingComponent = new ImgUploadMessageProcessingView();
+    this._messageLoadingComponent = new ImgUploadMessageLoadingView();
     this._picturesContainerComponent = new PicturesContainerView();
     this._uploadNewImgFormComponent = new UploadNewImgFormView();
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._showImgUploadOverlay = this._showImgUploadOverlay.bind(this);
   }
 
   init() {
     render(this._boardContainer, this._picturesContainerComponent, RenderPosition.BEFOREEND);
     render(this._picturesContainerComponent, this._uploadNewImgFormComponent, RenderPosition.BEFOREEND);
+
+    this._uploadNewImgFormComponent.setImgUploadInputHandler(this._showImgUploadOverlay);
 
     this._picturesModel.addObserver(this._handleModelEvent);
 
@@ -49,7 +52,7 @@ export default class Board {
       //   break;
       case UpdateType.INIT:
         this._isLoading = false;
-        remove(this._messageProcessingComponent);
+        remove(this._messageLoadingComponent);
         this._renderBoard();
         break;
     }
@@ -60,14 +63,14 @@ export default class Board {
       this._filterComponent = null;
     }
 
-    this._filterComponent = new FilterView() // needed add (this._currentSortType);
+    this._filterComponent = new FilterView(); // needed add (this._currentSortType);
     // this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
 
     render(this._boardContainer, this._filterComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderMessageProcessing() {
-    render(this._boardContainer, this._messageProcessingComponent, RenderPosition.BEFOREEND);
+    render(this._boardContainer, this._messageLoadingComponent, RenderPosition.BEFOREEND);
   }
 
   _renderPicture(picture) {
@@ -78,6 +81,28 @@ export default class Board {
 
   _renderPictures(pictures) {
     pictures.forEach((picture) => this._renderPicture(picture));
+  }
+
+  _showImgUploadOverlay() { // переписать ивент Лоад на проммис
+    const file = this._uploadNewImgFormComponent.getFile();
+    const fileName = file.name.toLowerCase();
+
+    const matches = FILE_TYPES.some((type) => fileName.endsWith(type));
+
+    if (matches) {
+      const reader = new FileReader();
+
+      reader.addEventListener(`load`, () => {
+        const formContainer = this._uploadNewImgFormComponent.getFormContainer();
+        const newImagePresenter = new NewImagePresenter(formContainer);
+
+        newImagePresenter.init(reader.result);
+
+        this._uploadNewImgFormComponent.restInputValue();
+      });
+
+      reader.readAsDataURL(file);
+    }
   }
 
   _renderBoard() {

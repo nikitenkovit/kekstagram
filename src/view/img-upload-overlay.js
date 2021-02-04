@@ -1,6 +1,6 @@
 import AbstractView from "./abstract";
 
-const createImgUploadOverlayTemplate = () => {
+const createImgUploadOverlayTemplate = (file) => {
   return (
     `<div class="img-upload__overlay">
         <div class="img-upload__wrapper">
@@ -13,7 +13,7 @@ const createImgUploadOverlayTemplate = () => {
             </fieldset>
   
             <div class="img-upload__preview">
-              <img src="img/upload-default-image.jpg" alt="Предварительный просмотр фотографии">
+              <img src="${file}" alt="Предварительный просмотр фотографии">
             </div>
   
             <fieldset class="img-upload__scale scale">
@@ -86,7 +86,28 @@ const createImgUploadOverlayTemplate = () => {
 };
 
 export default class ImgUploadOverlay extends AbstractView {
+  constructor(file) {
+    super();
+
+    this.callback = {};
+
+    this._file = file;
+
+    this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
+  }
+
   getTemplate() {
-    return createImgUploadOverlayTemplate();
+    return createImgUploadOverlayTemplate(this._file);
+  }
+
+  _cancelButtonClickHandler() {
+    this.callback.closeOverlay();
+  }
+
+  setCancelButtonClickHandler(callback) {
+    this.callback.closeOverlay = callback;
+
+    this.getElement().querySelector(`.img-upload__cancel`)
+      .addEventListener(`click`, this._cancelButtonClickHandler);
   }
 }

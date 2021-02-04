@@ -20,7 +20,38 @@ const createNewImgFormTemplate = () => {
 };
 
 export default class UploadNewImgForm extends AbstractView {
+  constructor() {
+    super();
+
+    this._callback = {};
+
+    this._imgUploadInputHandler = this._imgUploadInputHandler.bind(this);
+  }
+
   getTemplate() {
     return createNewImgFormTemplate();
+  }
+
+  _imgUploadInputHandler() {
+    this._callback.fileAploaded();
+  }
+
+  setImgUploadInputHandler(callback) {
+    this._callback.fileAploaded = callback;
+
+    this.getElement().querySelector(`.img-upload__input`)
+      .addEventListener(`change`, this._imgUploadInputHandler);
+  }
+
+  getFile() {
+    return this.getElement().querySelector(`.img-upload__input`).files[0];
+  }
+
+  getFormContainer() {
+    return this.getElement().querySelector(`.img-upload__form`);
+  }
+
+  restInputValue() {
+    this.getElement().querySelector(`.img-upload__input`).value = ``;
   }
 }

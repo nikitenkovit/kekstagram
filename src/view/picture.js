@@ -17,9 +17,25 @@ export default class Picture extends AbstractView {
     super();
 
     this._picture = picture;
+    this._callback = {};
+
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
     return createPictureTemplate(this._picture);
+  }
+
+  _clickHandler() {
+    this._callback.click();
+  }
+
+  setClickHandler(callback) {
+    this._callback.click = callback;
+
+    this.getElement().querySelector(`.picture__img`)
+      .addEventListener(`click`, this._clickHandler);
+    this.getElement().querySelector(`.picture__stats`)
+      .addEventListener(`click`, this._clickHandler);
   }
 }
