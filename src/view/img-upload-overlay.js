@@ -1,4 +1,5 @@
 import AbstractView from "./abstract";
+import {startDragging} from "../utils/dragNDrop";
 
 const createImgUploadOverlayTemplate = (file) => {
   return (
@@ -94,6 +95,7 @@ export default class ImgUploadOverlay extends AbstractView {
     this._file = file;
 
     this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
+    this._createScaleValueChangeEvent = this._createScaleValueChangeEvent.bind(this);
   }
 
   getTemplate() {
@@ -109,5 +111,56 @@ export default class ImgUploadOverlay extends AbstractView {
 
     this.getElement().querySelector(`.img-upload__cancel`)
       .addEventListener(`click`, this._cancelButtonClickHandler);
+  }
+
+  _getDragNDropElements() {
+    return [
+      this.getElement().querySelector(`.scale__line`),
+      this.getElement().querySelector(`.scale__pin`),
+      this.getElement().querySelector(`.scale__level`),
+    ];
+  }
+
+  setDraggingHandler() {
+    this.getElement().querySelector(`.scale__pin`)
+      .addEventListener(`mousedown`, (evt) => {
+        startDragging(evt, this._createScaleValueChangeEvent, ...this._getDragNDropElements());
+      });
+  }
+
+  _createScaleValueChangeEvent() {
+    const event = new Event(`change`);
+    this.getElement().querySelector(`.scale__value`).dispatchEvent(event);
+
+    this._changeInputValue();
+  }
+
+  _changeInputValue() {
+    this.getElement().querySelector(`.scale__value`)
+      .value = parseInt(this.getElement().querySelector(`.scale__level`).style.width, 10);
+  }
+
+  setScaleLineClickHandler() {
+    this.getElement().querySelector(`.scale__line`)
+      .addEventListener(`click`, (evt) => {
+        this._changeValueScaleLineOnClick(evt, ...this._getDragNDropElements());
+      });
+  }
+
+  _changeValueScaleLineOnClick(evt, scaleLine, scalePin, scaleLevel) {
+    if (evt.target !== this.getElement().querySelector(`.scale__pin`)) {
+      evt.preventDefault();
+
+      let coordX = evt.offsetX;
+      let scaleLineWidth = scaleLine.offsetWidth;
+      let positionValueClick = ``;
+      if (coordX >= 0 && coordX <= scaleLineWidth) {
+        positionValueClick = (coordX / scaleLineWidth) * 100 + `%`;
+      }
+      scalePin.style.left = positionValueClick;
+      scaleLevel.style.width = positionValueClick;
+
+      this._createScaleValueChangeEvent();
+    }
   }
 }

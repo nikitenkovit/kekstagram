@@ -17,6 +17,8 @@ export default class NewImage {
     render(this._newImageContainer, this._imgUploadOverlayComponent, RenderPosition.BEFOREEND);
 
     this._imgUploadOverlayComponent.setCancelButtonClickHandler(this._closeOverlay);
+    this._imgUploadOverlayComponent.setDraggingHandler();
+    this._imgUploadOverlayComponent.setScaleLineClickHandler();
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
