@@ -195,24 +195,46 @@ class Api {
 /*!**********************!*\
   !*** ./src/const.js ***!
   \**********************/
-/*! exports provided: UpdateType, UserAction */
+/*! exports provided: COMMENT_COUNT_PER_STEP, FILE_TYPES, UpdateType, UserAction, ScaleParameter, LimitEffectValue */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_COUNT_PER_STEP", function() { return COMMENT_COUNT_PER_STEP; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FILE_TYPES", function() { return FILE_TYPES; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UpdateType", function() { return UpdateType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UserAction", function() { return UserAction; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ScaleParameter", function() { return ScaleParameter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LimitEffectValue", function() { return LimitEffectValue; });
+const COMMENT_COUNT_PER_STEP = 5;
+
+const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
+
 const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
   MAJOR: `MAJOR`,
-  INIT: `INIT`
+  INIT: `INIT`,
 };
 
 const UserAction = {
   UPDATE_PICTURE: `UPDATE_PICTURE`,
   ADD_PICTURE: `ADD_PICTURE`,
   DELETE_PICTURE: `DELETE_PICTURE`
+};
+
+const ScaleParameter = {
+  DEFAULT: 75,
+  MIN: 25,
+  MAX: 100,
+  STEP: 25
+};
+
+const LimitEffectValue = {
+  PHOBOS_MAX: 3,
+  HEAT_MAX: 3,
+  HEAT_MIN: 1,
+  DEFAULT: 100
 };
 
 
@@ -227,15 +249,14 @@ const UserAction = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _view_img_upload_overlay_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./view/img-upload-overlay.js */ "./src/view/img-upload-overlay.js");
-/* harmony import */ var _view_img_upload_message_dragndrop_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./view/img-upload-message-dragndrop.js */ "./src/view/img-upload-message-dragndrop.js");
-/* harmony import */ var _view_img_upload_message_error_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./view/img-upload-message-error.js */ "./src/view/img-upload-message-error.js");
-/* harmony import */ var _model_pictures_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./model/pictures.js */ "./src/model/pictures.js");
-/* harmony import */ var _presenter_board_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./presenter/board.js */ "./src/presenter/board.js");
-/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./const.js */ "./src/const.js");
-/* harmony import */ var _api_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./api.js */ "./src/api.js");
-
-
+/* harmony import */ var _model_pictures_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/pictures.js */ "./src/model/pictures.js");
+/* harmony import */ var _presenter_board_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./presenter/board.js */ "./src/presenter/board.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./const.js */ "./src/const.js");
+/* harmony import */ var _api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./api.js */ "./src/api.js");
+// import ImgUploadOverlayView from "./view/img-upload-overlay.js";
+// import ImgUploadMessageDragndropView from "./view/img-upload-message-dragndrop.js";
+// import ImgUploadMessageErrorView from "./view/img-upload-message-error.js";
+// import ImgUploadMessageProcessingView from "./view/img-upload-message-processing.js";
 
 
 
@@ -247,21 +268,21 @@ const END_POINT = `https://javascript.pages.academy/kekstagram`;
 
 const siteMainElement = document.querySelector(`main`);
 
-const api = new _api_js__WEBPACK_IMPORTED_MODULE_6__["default"](END_POINT, AUTHORIZATION);
+const api = new _api_js__WEBPACK_IMPORTED_MODULE_3__["default"](END_POINT, AUTHORIZATION);
 
-const picturesModel = new _model_pictures_js__WEBPACK_IMPORTED_MODULE_3__["default"]();
+const picturesModel = new _model_pictures_js__WEBPACK_IMPORTED_MODULE_0__["default"]();
 
-const boardPresenter = new _presenter_board_js__WEBPACK_IMPORTED_MODULE_4__["default"](siteMainElement, picturesModel);
+const boardPresenter = new _presenter_board_js__WEBPACK_IMPORTED_MODULE_1__["default"](siteMainElement, picturesModel);
 
 boardPresenter.init();
 
 api.getPictures()
   .then((tasks) => {
-    picturesModel.setPictures(_const_js__WEBPACK_IMPORTED_MODULE_5__["UpdateType"].INIT, tasks);
+    picturesModel.setPictures(_const_js__WEBPACK_IMPORTED_MODULE_2__["UpdateType"].INIT, tasks);
     // console.log(picturesModel.getPictures())
   })
   .catch(() => {
-    picturesModel.setPictures(_const_js__WEBPACK_IMPORTED_MODULE_5__["UpdateType"].INIT, []);
+    picturesModel.setPictures(_const_js__WEBPACK_IMPORTED_MODULE_2__["UpdateType"].INIT, []);
   });
 
 
@@ -340,6 +361,102 @@ class Pictures extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"
 
 /***/ }),
 
+/***/ "./src/presenter/big-picture-overlay.js":
+/*!**********************************************!*\
+  !*** ./src/presenter/big-picture-overlay.js ***!
+  \**********************************************/
+/*! exports provided: State, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return BigPictureOverlay; });
+/* harmony import */ var _view_big_picture_overlay_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/big-picture-overlay.js */ "./src/view/big-picture-overlay.js");
+/* harmony import */ var _view_social_load_more_btn__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../view/social-load-more-btn */ "./src/view/social-load-more-btn.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+/* harmony import */ var _utils_render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/render */ "./src/utils/render.js");
+
+
+
+
+
+const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
+class BigPictureOverlay { // added changeData and changeMode
+  constructor(pictureListContainer) {
+    this._pictureListContainer = pictureListContainer;
+    this._renderedCommentsCount = _const_js__WEBPACK_IMPORTED_MODULE_2__["COMMENT_COUNT_PER_STEP"];
+    this._socialLoadMoreBtnComponent = new _view_social_load_more_btn__WEBPACK_IMPORTED_MODULE_1__["default"]();
+    // this._changeData = changeData;
+    // this._changeMode = changeMode;
+
+    this._closePopap = this._closePopap.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._handleSocialLoadMoreBtnClick = this._handleSocialLoadMoreBtnClick.bind(this);
+  }
+
+  init(picture) {
+    this._picture = picture;
+    this._comments = this._picture.comments;
+
+    this._bigPictureOverlayComponent = new _view_big_picture_overlay_js__WEBPACK_IMPORTED_MODULE_0__["default"](this._picture, this._comments);
+
+    Object(_utils_render__WEBPACK_IMPORTED_MODULE_3__["render"])(this._pictureListContainer, this._bigPictureOverlayComponent, _utils_render__WEBPACK_IMPORTED_MODULE_3__["RenderPosition"].BEFOREEND);
+    this._renderComments(0, _const_js__WEBPACK_IMPORTED_MODULE_2__["COMMENT_COUNT_PER_STEP"]);
+    this._renderSocialLoadMoreBtn();
+  }
+
+  resetPopapHandlers() {
+    this._bigPictureOverlayComponent.setCancelButtonClickHandler(this._closePopap);
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _closePopap() {
+    Object(_utils_render__WEBPACK_IMPORTED_MODULE_3__["remove"])(this._bigPictureOverlayComponent);
+
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _escKeyDownHandler(evt) {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      this._closePopap();
+    }
+  }
+
+  _renderComments(from, to) {
+    this._bigPictureOverlayComponent.renderComments(from, to);
+  }
+
+  _renderSocialLoadMoreBtn() {
+    if (this._comments.length > _const_js__WEBPACK_IMPORTED_MODULE_2__["COMMENT_COUNT_PER_STEP"]) {
+      this._bigPictureOverlayComponent.renderSocialLoadMoreBtn();
+      this._bigPictureOverlayComponent.setSocialLoadMoreBtnClickHandler(this._handleSocialLoadMoreBtnClick);
+    }
+  }
+
+  _removeSocialLoadMoreBtn() {
+    this._bigPictureOverlayComponent.removeSocialLoadMoreBtn(this._handleSocialLoadMoreBtnClick);
+  }
+
+  _handleSocialLoadMoreBtnClick() {
+    this._renderComments(this._renderedCommentsCount, this._renderedCommentsCount + _const_js__WEBPACK_IMPORTED_MODULE_2__["COMMENT_COUNT_PER_STEP"]);
+    this._renderedCommentsCount += _const_js__WEBPACK_IMPORTED_MODULE_2__["COMMENT_COUNT_PER_STEP"];
+
+    if (this._renderedCommentsCount >= this._comments.length) {
+      this._removeSocialLoadMoreBtn();
+    }
+  }
+}
+
+
+/***/ }),
+
 /***/ "./src/presenter/board.js":
 /*!********************************!*\
   !*** ./src/presenter/board.js ***!
@@ -352,10 +469,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Board; });
 /* harmony import */ var _view_filter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/filter.js */ "./src/view/filter.js");
 /* harmony import */ var _view_img_upload_message_loading_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../view/img-upload-message-loading.js */ "./src/view/img-upload-message-loading.js");
-/* harmony import */ var _view_img_upload_message_processing_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../view/img-upload-message-processing.js */ "./src/view/img-upload-message-processing.js");
-/* harmony import */ var _view_pictures_container__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../view/pictures-container */ "./src/view/pictures-container.js");
-/* harmony import */ var _view_uploadNewImgForm_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../view/uploadNewImgForm.js */ "./src/view/uploadNewImgForm.js");
-/* harmony import */ var _picture_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./picture.js */ "./src/presenter/picture.js");
+/* harmony import */ var _view_pictures_container__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../view/pictures-container */ "./src/view/pictures-container.js");
+/* harmony import */ var _view_upload_new_img_form_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../view/upload-new-img-form.js */ "./src/view/upload-new-img-form.js");
+/* harmony import */ var _picture_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./picture.js */ "./src/presenter/picture.js");
+/* harmony import */ var _new_image__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./new-image */ "./src/presenter/new-image.js");
 /* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 
@@ -374,16 +491,19 @@ class Board {
     this._isLoading = true;
 
     this._filterComponent = null;
-    this._messageProcessingComponent = new _view_img_upload_message_processing_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
-    this._picturesContainerComponent = new _view_pictures_container__WEBPACK_IMPORTED_MODULE_3__["default"]();
-    this._uploadNewImgFormComponent = new _view_uploadNewImgForm_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    this._messageLoadingComponent = new _view_img_upload_message_loading_js__WEBPACK_IMPORTED_MODULE_1__["default"]();
+    this._picturesContainerComponent = new _view_pictures_container__WEBPACK_IMPORTED_MODULE_2__["default"]();
+    this._uploadNewImgFormComponent = new _view_upload_new_img_form_js__WEBPACK_IMPORTED_MODULE_3__["default"]();
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._showImgUploadOverlay = this._showImgUploadOverlay.bind(this);
   }
 
   init() {
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._boardContainer, this._picturesContainerComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].BEFOREEND);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._picturesContainerComponent, this._uploadNewImgFormComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].BEFOREEND);
+
+    this._uploadNewImgFormComponent.setImgUploadInputHandler(this._showImgUploadOverlay);
 
     this._picturesModel.addObserver(this._handleModelEvent);
 
@@ -409,7 +529,7 @@ class Board {
       //   break;
       case _const_js__WEBPACK_IMPORTED_MODULE_7__["UpdateType"].INIT:
         this._isLoading = false;
-        Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["remove"])(this._messageProcessingComponent);
+        Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["remove"])(this._messageLoadingComponent);
         this._renderBoard();
         break;
     }
@@ -420,24 +540,46 @@ class Board {
       this._filterComponent = null;
     }
 
-    this._filterComponent = new _view_filter_js__WEBPACK_IMPORTED_MODULE_0__["default"]() // needed add (this._currentSortType);
+    this._filterComponent = new _view_filter_js__WEBPACK_IMPORTED_MODULE_0__["default"](); // needed add (this._currentSortType);
     // this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
 
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._boardContainer, this._filterComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].AFTERBEGIN);
   }
 
   _renderMessageProcessing() {
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._boardContainer, this._messageProcessingComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].BEFOREEND);
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._boardContainer, this._messageLoadingComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].BEFOREEND);
   }
 
   _renderPicture(picture) {
-    const picturePresenter = new _picture_js__WEBPACK_IMPORTED_MODULE_5__["default"](this._picturesContainerComponent); // added this._handleViewAction, this._handleModeChange
+    const picturePresenter = new _picture_js__WEBPACK_IMPORTED_MODULE_4__["default"](this._picturesContainerComponent); // added this._handleViewAction, this._handleModeChange
     picturePresenter.init(picture);
     // this._picturePresenter[picture.id] = picturePresenter;
   }
 
   _renderPictures(pictures) {
     pictures.forEach((picture) => this._renderPicture(picture));
+  }
+
+  _showImgUploadOverlay() { // переписать ивент Лоад на проммис
+    const file = this._uploadNewImgFormComponent.getFile();
+    const fileName = file.name.toLowerCase();
+
+    const matches = _const_js__WEBPACK_IMPORTED_MODULE_7__["FILE_TYPES"].some((type) => fileName.endsWith(type));
+
+    if (matches) {
+      const reader = new FileReader();
+
+      reader.addEventListener(`load`, () => {
+        const formContainer = this._uploadNewImgFormComponent.getFormContainer();
+        const newImagePresenter = new _new_image__WEBPACK_IMPORTED_MODULE_5__["default"](formContainer);
+
+        newImagePresenter.init(reader.result);
+
+        // this._uploadNewImgFormComponent.resetInputValue();
+      });
+
+      reader.readAsDataURL(file);
+    }
   }
 
   _renderBoard() {
@@ -457,57 +599,224 @@ class Board {
 
 /***/ }),
 
-/***/ "./src/presenter/picture.js":
-/*!**********************************!*\
-  !*** ./src/presenter/picture.js ***!
-  \**********************************/
-/*! exports provided: State, default */
+/***/ "./src/presenter/new-image.js":
+/*!************************************!*\
+  !*** ./src/presenter/new-image.js ***!
+  \************************************/
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return NewImage; });
+/* harmony import */ var _view_img_upload_overlay__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/img-upload-overlay */ "./src/view/img-upload-overlay.js");
+/* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
+
+
+
+class NewImage {
+  constructor(container) {
+    this._newImageContainer = container;
+
+    this._closeOverlay = this._closeOverlay.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+  }
+
+  init(file) {
+    this._file = file;
+
+    this._imgUploadOverlayComponent = new _view_img_upload_overlay__WEBPACK_IMPORTED_MODULE_0__["default"](this._file);
+
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(this._newImageContainer, this._imgUploadOverlayComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_1__["RenderPosition"].BEFOREEND);
+
+    this._imgUploadOverlayComponent.createMiniatures();
+
+    this._imgUploadOverlayComponent.setInitialImageSettings();
+
+    this._resetHandlers();
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _closeOverlay() {
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["remove"])(this._imgUploadOverlayComponent);
+  }
+
+  _escKeyDownHandler(evt) {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      this._closeOverlay();
+    }
+  }
+
+  _resetHandlers() {
+    this._imgUploadOverlayComponent.setCancelButtonClickHandler(this._closeOverlay);
+    this._imgUploadOverlayComponent.setDraggingHandler();
+    this._imgUploadOverlayComponent.setScaleLineClickHandler();
+    this._imgUploadOverlayComponent.setResizeControlMinusClickHandler();
+    this._imgUploadOverlayComponent.setResizeControlPlusClickHandler();
+    this._imgUploadOverlayComponent.setEffectsListChangeHandler();
+    this._imgUploadOverlayComponent.setUserHashtagsChangeHandler();
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/presenter/picture.js":
+/*!**********************************!*\
+  !*** ./src/presenter/picture.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Picture; });
 /* harmony import */ var _view_picture_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/picture.js */ "./src/view/picture.js");
-/* harmony import */ var _view_big_picture_overlay_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../view/big-picture-overlay.js */ "./src/view/big-picture-overlay.js");
+/* harmony import */ var _big_picture_overlay__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./big-picture-overlay */ "./src/presenter/big-picture-overlay.js");
 /* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
-/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 
 
 
-
-
-const Mode = {
-  DEFAULT: `DEFAULT`,
-  MODAL_OPEN: `MODAL_OPEN`
-};
-
-const State = {
-  SAVING: `SAVING`,
-  DELETING: `DELETING`,
-  ABORTING: `ABORTING`
-};
 
 class Picture {
-  constructor(pictureListContainer) { // added changeData and changeMode
+  constructor(pictureListContainer) {
     this._pictureListContainer = pictureListContainer;
-    // this._changeData = changeData;
-    // this._changeMode = changeMode;
 
     this._pictureComponent = null;
-    this._bigPictureOverlayComponent = null;
-    this._mode = Mode.DEFAULT;
+
+    this._showPopap = this._showPopap.bind(this);
   }
 
   init(picture) {
     this._picture = picture;
 
-    this._pictureComponent = new _view_picture_js__WEBPACK_IMPORTED_MODULE_0__["default"](picture);
-    this._bigPictureOverlayComponent = new _view_big_picture_overlay_js__WEBPACK_IMPORTED_MODULE_1__["default"](picture);
+    this._pictureComponent = new _view_picture_js__WEBPACK_IMPORTED_MODULE_0__["default"](this._picture);
+
+    this._pictureComponent.setClickHandler(this._showPopap);
 
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["render"])(this._pictureListContainer, this._pictureComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_2__["RenderPosition"].BEFOREEND);
   }
+
+  _showPopap() {
+    const bigPictureOverlayPresenter = new _big_picture_overlay__WEBPACK_IMPORTED_MODULE_1__["default"](this._pictureListContainer);
+    bigPictureOverlayPresenter.init(this._picture);
+
+    bigPictureOverlayPresenter.resetPopapHandlers();
+  }
 }
+
+
+/***/ }),
+
+/***/ "./src/utils/drag-n-drop.js":
+/*!**********************************!*\
+  !*** ./src/utils/drag-n-drop.js ***!
+  \**********************************/
+/*! exports provided: startDragging */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "startDragging", function() { return startDragging; });
+const startDragging = (evt, callback, scaleLine, scalePin, scaleLevel) => {
+  evt.preventDefault();
+
+  const scalePinPositionLimits = {
+    min: 0,
+    max: scaleLine.offsetWidth
+  };
+
+  let startX = evt.clientX;
+
+  const onMouseMove = (moveEvt) => {
+    moveEvt.preventDefault();
+
+    let shiftX = startX - moveEvt.clientX;
+
+    startX = moveEvt.clientX;
+
+    scalePin.style.left = (scalePin.offsetLeft - shiftX) + `px`;
+
+    if (parseInt(scalePin.style.left, 10) < scalePinPositionLimits.min) {
+      scalePin.style.left = scalePinPositionLimits.min + `px`;
+    }
+    if (parseInt(scalePin.style.left, 10) > scalePinPositionLimits.max) {
+      scalePin.style.left = scalePinPositionLimits.max + `px`;
+    }
+
+    scaleLevel.style.width = (parseInt(scalePin.style.left, 10) / scalePinPositionLimits.max) * 100 + `%`;
+
+    callback();
+  };
+
+  const onMouseUp = (upEvt) => {
+    upEvt.preventDefault();
+    document.removeEventListener(`mousemove`, onMouseMove);
+    document.removeEventListener(`mouseup`, onMouseUp);
+  };
+
+  document.addEventListener(`mousemove`, onMouseMove);
+  document.addEventListener(`mouseup`, onMouseUp);
+};
+
+
+/***/ }),
+
+/***/ "./src/utils/hashtags-validation.js":
+/*!******************************************!*\
+  !*** ./src/utils/hashtags-validation.js ***!
+  \******************************************/
+/*! exports provided: validityHashtags */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validityHashtags", function() { return validityHashtags; });
+const MAXIMUM_HASHTAGS = 5;
+const HASHTAG_MAX_LENGTH = 20;
+
+const validityHashtags = (userHashtags, errorColor) => {
+  let arrayHashtags = userHashtags.value.split(` `);
+
+  if (!userHashtags.value) {
+    return ``;
+  }
+
+  if (arrayHashtags.length > MAXIMUM_HASHTAGS) {
+    errorColor();
+    return `Хэш-тегов должно быть не больше пяти`;
+  }
+
+  for (let i = 0; i < arrayHashtags.length; i++) {
+    if (!arrayHashtags[i].startsWith(`#`)) {
+      errorColor();
+      return `Хэш-тег должен начинаться со знака "#": ${arrayHashtags[i]}`;
+    } else if (arrayHashtags[i].startsWith(`#`) && arrayHashtags[i].length < 2) {
+      errorColor();
+      return `Хэш-тег не должен состоять только из одного знака "#": ${arrayHashtags[i]}`;
+    } else if (arrayHashtags[i].lastIndexOf(`#`) !== 0 || arrayHashtags[i].indexOf(`,`) > -1) {
+      errorColor();
+      return `Хэш-теги должны разделяться пробелами: ${arrayHashtags[i]}`;
+    } else if (arrayHashtags[i].length > HASHTAG_MAX_LENGTH) {
+      errorColor();
+      return `Максимальная длина одного хэш-тега 20 символов, включая решётку: ${arrayHashtags[i]}`;
+    }
+
+    let currentHashtag = arrayHashtags[i].toLowerCase();
+    for (let j = i + 1; j < arrayHashtags.length; j++) {
+      let nextHashTag = arrayHashtags[j].toLowerCase();
+      if (currentHashtag === nextHashTag) {
+        errorColor();
+        return `Один и тот же хэш-тег не может быть использован дважды (хеш-теги не чувствительны в регистру): ${arrayHashtags[i]}`;
+      }
+    }
+  }
+
+  return ``;
+};
 
 
 /***/ }),
@@ -637,8 +946,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
 
 
-const SHAKE_ANIMATION_TIMEOUT = 600;
-
 class Abstract {
   constructor() {
     if (new.target === Abstract) {
@@ -664,14 +971,6 @@ class Abstract {
   removeElement() {
     this._element = null;
   }
-
-  shake(callback) {
-    this.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-    setTimeout(() => {
-      this.getElement().style.animation = ``;
-      callback();
-    }, SHAKE_ANIMATION_TIMEOUT);
-  }
 }
 
 
@@ -688,28 +987,34 @@ class Abstract {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return BigPictureOverlay; });
 /* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
+/* harmony import */ var _comment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./comment */ "./src/view/comment.js");
+/* harmony import */ var _social_load_more_btn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./social-load-more-btn */ "./src/view/social-load-more-btn.js");
+/* harmony import */ var _utils_render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/render */ "./src/utils/render.js");
 
 
-const createBigPictureOverlayTemplate = () => {
+
+
+
+const createBigPictureOverlayTemplate = ({comments, description, likes, url}) => {
   return (
     `<section class="big-picture overlay">
       <h2 class="big-picture__title visually-hidden">Просмотр фотографии</h2>
       <div class="big-picture__preview">
 
         <div class="big-picture__img">
-          <img class="big-picture__img--img" src="#" alt="Выбранная фотография" width="600" height="600">
+          <img class="big-picture__img--img" src="${url}" alt="Выбранная фотография" width="600" height="600">
         </div>
 
         <div class="big-picture__social social">
           <div class="social__header">
             <img class="social__picture" src="img/avatar-1.svg" alt="Аватар автора фотографии" width="35" height="35">
-            <p class="social__caption"></p>
-            <p class="social__likes">Нравится <span class="likes-count"></span></p>
+            <p class="social__caption">${description}</p>
+            <p class="social__likes">Нравится <span class="likes-count">${likes}</span></p>
           </div>
-          <div class="social__comment-count"><span class="current-comment-count">5</span> из <span class="comments-count">125</span> комментариев</div>
+          <div class="social__comment-count"><span class="current-comment-count">5</span> из <span class="comments-count">${comments.length}</span> комментариев</div>
           <ul class="social__comments">
           </ul>
-          <button class="social__loadmore" type="button">Загрузить еще</button>
+          <div class="social__loadmore-container"></div>
           <div class="social__footer">
             <img class="social__picture" src="img/avatar-6.svg" alt="Аватар комментатора фотографии" width="35" height="35">
             <input type="text" class="social__footer-text" placeholder="Ваш комментарий...">
@@ -723,8 +1028,104 @@ const createBigPictureOverlayTemplate = () => {
 };
 
 class BigPictureOverlay extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(picture, comments) {
+    super();
+
+    this._socialLoadMoreBtnComponent = new _social_load_more_btn__WEBPACK_IMPORTED_MODULE_2__["default"]();
+
+    this._picture = picture;
+    this._comments = comments;
+
+    this.callback = {};
+
+    this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
+    this._socialLoadMoreBtnClickHandler = this._socialLoadMoreBtnClickHandler.bind(this);
+  }
+
   getTemplate() {
-    return createBigPictureOverlayTemplate();
+    return createBigPictureOverlayTemplate(this._picture);
+  }
+
+  _cancelButtonClickHandler() {
+    this.callback.closePopap();
+  }
+
+  setCancelButtonClickHandler(callback) {
+    this.callback.closePopap = callback;
+
+    this.getElement().querySelector(`.big-picture__cancel`)
+      .addEventListener(`click`, this._cancelButtonClickHandler);
+  }
+
+  _renderComment(comment) {
+    const commentComponent = new _comment__WEBPACK_IMPORTED_MODULE_1__["default"](comment);
+
+    Object(_utils_render__WEBPACK_IMPORTED_MODULE_3__["render"])(this.getElement().querySelector(`.social__comments`),
+        commentComponent,
+        _utils_render__WEBPACK_IMPORTED_MODULE_3__["RenderPosition"].BEFOREEND);
+  }
+
+  renderComments(from, to) {
+    this._comments
+      .slice(from, to)
+      .forEach((comment) => this._renderComment(comment));
+  }
+
+  renderSocialLoadMoreBtn() {
+    Object(_utils_render__WEBPACK_IMPORTED_MODULE_3__["render"])(this.getElement().querySelector(`.social__loadmore-container`),
+        this._socialLoadMoreBtnComponent,
+        _utils_render__WEBPACK_IMPORTED_MODULE_3__["RenderPosition"].BEFOREEND);
+  }
+
+  removeSocialLoadMoreBtn() {
+    Object(_utils_render__WEBPACK_IMPORTED_MODULE_3__["remove"])(this._socialLoadMoreBtnComponent);
+  }
+
+  _socialLoadMoreBtnClickHandler() {
+    this.callback.loadMoreComments();
+  }
+
+  setSocialLoadMoreBtnClickHandler(callback) {
+    this.callback.loadMoreComments = callback;
+
+    this.getElement().querySelector(`.social__loadmore`)
+      .addEventListener(`click`, this._socialLoadMoreBtnClickHandler);
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/view/comment.js":
+/*!*****************************!*\
+  !*** ./src/view/comment.js ***!
+  \*****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Comment; });
+/* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
+
+
+const createCommentTemplate = ({avatar, message}) => {
+  return (
+    `<li class="social__comment">
+      <img class="social__picture"  alt="Аватар комментатора фотографии" width="35" height="35" src="${avatar}">
+      <p class="social__text">${message}</p>
+    </li>`
+  );
+};
+
+class Comment extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(comment) {
+    super();
+    this._comment = comment;
+  }
+
+  getTemplate() {
+    return createCommentTemplate(this._comment);
   }
 }
 
@@ -786,65 +1187,6 @@ class Filter extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
 /***/ }),
 
-/***/ "./src/view/img-upload-message-dragndrop.js":
-/*!**************************************************!*\
-  !*** ./src/view/img-upload-message-dragndrop.js ***!
-  \**************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ImgUploadMessageDragndrop; });
-/* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
-
-
-const createMessageDragndropTemplate = () => {
-  return `<div class="img-upload__message img-upload__message--dragndrop">Сюда!</div>`;
-};
-
-class ImgUploadMessageDragndrop extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  getTemplate() {
-    return createMessageDragndropTemplate();
-  }
-}
-
-
-/***/ }),
-
-/***/ "./src/view/img-upload-message-error.js":
-/*!**********************************************!*\
-  !*** ./src/view/img-upload-message-error.js ***!
-  \**********************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ImgUploadMessageError; });
-/* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
-
-
-const createMessageErrorTemplate = () => {
-  return (
-    ` <div class="img-upload__message img-upload__message--error error">Ошибка загрузки файла
-      <div class="error__links">
-        <a class="error__link" href="#">Попробовать снова</a>
-        <a class="error__link" href="#">Загрузить другой файл</a>
-      </div>
-    </div>`
-  );
-};
-
-class ImgUploadMessageError extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  getTemplate() {
-    return createMessageErrorTemplate();
-  }
-}
-
-
-/***/ }),
-
 /***/ "./src/view/img-upload-message-loading.js":
 /*!************************************************!*\
   !*** ./src/view/img-upload-message-loading.js ***!
@@ -871,32 +1213,6 @@ class ImgUploadMessageLoading extends _abstract__WEBPACK_IMPORTED_MODULE_0__["de
 
 /***/ }),
 
-/***/ "./src/view/img-upload-message-processing.js":
-/*!***************************************************!*\
-  !*** ./src/view/img-upload-message-processing.js ***!
-  \***************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ImgUploadMessageProcessing; });
-/* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
-
-
-const createMessageProcessingTemplate = () => {
-  return `<div class="img-upload__message img-upload__message--processing">Кексограмим...</div>`;
-};
-
-class ImgUploadMessageProcessing extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  getTemplate() {
-    return createMessageProcessingTemplate();
-  }
-}
-
-
-/***/ }),
-
 /***/ "./src/view/img-upload-overlay.js":
 /*!****************************************!*\
   !*** ./src/view/img-upload-overlay.js ***!
@@ -908,9 +1224,43 @@ class ImgUploadMessageProcessing extends _abstract__WEBPACK_IMPORTED_MODULE_0__[
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ImgUploadOverlay; });
 /* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
+/* harmony import */ var _utils_drag_n_drop__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/drag-n-drop */ "./src/utils/drag-n-drop.js");
+/* harmony import */ var _const__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../const */ "./src/const.js");
+/* harmony import */ var _utils_hashtags_validation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/hashtags-validation */ "./src/utils/hashtags-validation.js");
 
 
-const createImgUploadOverlayTemplate = () => {
+
+
+
+const EffectsName = [`none`, `chrome`, `sepia`, `marvin`, `phobos`, `heat`];
+
+const EffectsNameToRussiaName = {
+  none: `Оригинал`,
+  chrome: `Хром`,
+  sepia: `Сепия`,
+  marvin: `Марвин`,
+  phobos: `Фобос`,
+  heat: `Зной`
+};
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
+const createEffectsItemsTemplate = (name) => {
+  return (
+    `<li class="effects__item">
+      <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-${name}"
+       value="${name}" ${name === `none` ? `checked` : ``}>
+      <label for="effect-${name}" class="effects__label">
+      <span class="effects__preview effects__preview--${name}">
+      Превью фото ${name === `none` ? `без эффекта` : EffectsNameToRussiaName[name]}
+      </span>
+      ${EffectsNameToRussiaName[name]}
+      </label>
+    </li>`
+  );
+};
+
+const createImgUploadOverlayTemplate = (file) => {
   return (
     `<div class="img-upload__overlay">
         <div class="img-upload__wrapper">
@@ -923,7 +1273,7 @@ const createImgUploadOverlayTemplate = () => {
             </fieldset>
   
             <div class="img-upload__preview">
-              <img src="img/upload-default-image.jpg" alt="Предварительный просмотр фотографии">
+              <img src="${file}" alt="Предварительный просмотр фотографии">
             </div>
   
             <fieldset class="img-upload__scale scale">
@@ -939,53 +1289,13 @@ const createImgUploadOverlayTemplate = () => {
   
           <fieldset class="img-upload__effects effects">
             <ul class="effects__list">
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-none" value="none" checked>
-                <label for="effect-none" class="effects__label">
-                  <span class="effects__preview effects__preview--none">Превью фото без эффекта</span>
-                  Оригинал
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-chrome" value="chrome">
-                <label for="effect-chrome" class="effects__label">
-                  <span class="effects__preview effects__preview--chrome">Превью эффекта Хром</span>
-                  Хром
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-sepia" value="sepia">
-                <label for="effect-sepia" class="effects__label">
-                  <span class="effects__preview effects__preview--sepia">Превью эффекта Сепия</span>
-                  Сепия
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-marvin" value="marvin">
-                <label for="effect-marvin" class="effects__label">
-                  <span class="effects__preview effects__preview--marvin">Превью эффекта Марвин</span>
-                  Марвин
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-phobos" value="phobos">
-                <label for="effect-phobos" class="effects__label">
-                  <span class="effects__preview effects__preview--phobos">Превью эффекта Фобос</span>
-                  Фобос
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-heat" value="heat">
-                <label for="effect-heat" class="effects__label">
-                  <span class="effects__preview effects__preview--heat">Превью эффекта Зной</span>
-                  Зной
-                </label>
-              </li>
+             ${EffectsName.map((name) => createEffectsItemsTemplate(name))}
             </ul>
           </fieldset>
   
           <fieldset class="img-upload__text text">
             <input class="text__hashtags" type="text" name="hashtags" placeholder="#хэш-тег">
+            <p class="message-error"></p>
             <textarea class="text__description" name="description" placeholder="Ваш комментарий..." maxlength="140"></textarea>
           </fieldset>
   
@@ -996,8 +1306,213 @@ const createImgUploadOverlayTemplate = () => {
 };
 
 class ImgUploadOverlay extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(file) {
+    super();
+
+    this.callback = {};
+
+    this._file = file;
+
+    this._scaleLine = this.getElement().querySelector(`.scale__line`);
+    this._scalePin = this.getElement().querySelector(`.scale__pin`);
+    this._scaleLevel = this.getElement().querySelector(`.scale__level`);
+    this._scaleValue = this.getElement().querySelector(`.scale__value`);
+    this._resizeInputValue = this.getElement().querySelector(`.resize__control--value`);
+    this._resizeControlMinus = this.getElement().querySelector(`.resize__control--minus`);
+    this._resizeControlPlus = this.getElement().querySelector(`.resize__control--plus`);
+    this._uploadedImage = this.getElement().querySelector(`.img-upload__preview`);
+    this._imageUploadScale = this.getElement().querySelector(`.img-upload__scale`);
+    this._effectsList = this.getElement().querySelector(`.effects__list`);
+    this._userHashtags = this.getElement().querySelector(`.text__hashtags`);
+
+    this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
+    this._createScaleValueChangeEvent = this._createScaleValueChangeEvent.bind(this);
+    this._hashtagsBorderColorError = this._hashtagsBorderColorError.bind(this);
+
+    this._effectName = ``;
+  }
+
   getTemplate() {
-    return createImgUploadOverlayTemplate();
+    return createImgUploadOverlayTemplate(this._file);
+  }
+
+  _cancelButtonClickHandler() {
+    this.callback.closeOverlay();
+  }
+
+  setCancelButtonClickHandler(callback) {
+    this.callback.closeOverlay = callback;
+
+    this.getElement().querySelector(`.img-upload__cancel`)
+      .addEventListener(`click`, this._cancelButtonClickHandler);
+  }
+
+  createMiniatures() {
+    const miniatures = this.getElement().querySelectorAll(`.effects__preview`);
+
+    miniatures.forEach((elem) => {
+      elem.style.backgroundImage = `url(${this._file})`;
+    });
+  }
+
+  _getDragNDropElements() {
+    return [
+      this._scaleLine,
+      this._scalePin,
+      this._scaleLevel
+    ];
+  }
+
+  setDraggingHandler() {
+    this._scalePin.addEventListener(`mousedown`, (evt) => {
+      Object(_utils_drag_n_drop__WEBPACK_IMPORTED_MODULE_1__["startDragging"])(evt, this._createScaleValueChangeEvent, ...this._getDragNDropElements());
+    });
+  }
+
+  _createScaleValueChangeEvent() {
+    const event = new Event(`change`);
+    this._scaleValue.dispatchEvent(event);
+
+    this._changeInputValue();
+
+    this._setEffectValue(this._scaleValue.value);
+  }
+
+  _changeInputValue() {
+    this._scaleValue.value = parseInt(this._scaleLevel.style.width, 10);
+  }
+
+  setScaleLineClickHandler() {
+    this._scaleLine.addEventListener(`click`, (evt) => {
+      this._changeValueScaleLineOnClick(evt, ...this._getDragNDropElements());
+    });
+  }
+
+  _changeValueScaleLineOnClick(evt, scaleLine, scalePin, scaleLevel) {
+    if (evt.target !== this._scalePin) {
+      evt.preventDefault();
+
+      let coordX = evt.offsetX;
+      let scaleLineWidth = scaleLine.offsetWidth;
+      let positionValueClick = ``;
+      if (coordX >= 0 && coordX <= scaleLineWidth) {
+        positionValueClick = (coordX / scaleLineWidth) * 100 + `%`;
+      }
+      scalePin.style.left = positionValueClick;
+      scaleLevel.style.width = positionValueClick;
+
+      this._createScaleValueChangeEvent();
+    }
+  }
+
+  _resizeImage(sign) {
+    let controlValue = this._resizeInputValue.value;
+
+    controlValue = parseInt(controlValue, 10) - _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].STEP * sign;
+
+    if (controlValue > _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].MAX) {
+      controlValue = _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].MAX;
+    } else if (controlValue < _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].MIN) {
+      controlValue = _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].MIN;
+    }
+
+    this._uploadedImage.style.transform = `scale(${controlValue / 100})`;
+    this._resizeInputValue.value = controlValue + `%`;
+  }
+
+  setResizeControlMinusClickHandler() {
+    this._resizeControlMinus.addEventListener(`click`, () => {
+      this._resizeImage(1);
+    });
+  }
+
+  setResizeControlPlusClickHandler() {
+    this._resizeControlPlus.addEventListener(`click`, () => {
+      this._resizeImage(-1);
+    });
+  }
+
+  setInitialImageSettings() {
+    this._uploadedImage.style.transform = `scale(${_const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].DEFAULT / 100})`;
+    this._resizeInputValue.value = _const__WEBPACK_IMPORTED_MODULE_2__["ScaleParameter"].DEFAULT + `%`;
+    this._imageUploadScale.classList.add(`hidden`);
+
+    this._sliderSetStartPosition();
+  }
+
+  _setEffectName(evt) {
+    this._effectName = evt.target.value;
+  }
+
+  _visibilitySwitchScaleInput() {
+    this._uploadedImage.style.filter = ``;
+
+    // eslint-disable-next-line no-unused-expressions
+    this._effectName === `none`
+      ? this._imageUploadScale.classList.add(`hidden`)
+      : this._imageUploadScale.classList.remove(`hidden`);
+  }
+
+  setEffectsListChangeHandler() {
+    this._effectsList.addEventListener(`change`, (evt) => {
+      this._setEffectName(evt);
+      this._visibilitySwitchScaleInput();
+      this._sliderSetStartPosition();
+      this._setEffectValue(_const__WEBPACK_IMPORTED_MODULE_2__["LimitEffectValue"].DEFAULT);
+    });
+  }
+
+  _setEffectValue(value) {
+    const effectNameToEffectValue = {
+      'chrome': `grayscale(${value / 100})`,
+      'sepia': `sepia(${value / 100})`,
+      'marvin': `invert(${value + `%`})`,
+      'phobos': `blur(${((value / 100) * _const__WEBPACK_IMPORTED_MODULE_2__["LimitEffectValue"].PHOBOS_MAX).toFixed(2) + `px`})`,
+      'heat': `brightness(${((value / 100 * (_const__WEBPACK_IMPORTED_MODULE_2__["LimitEffectValue"].HEAT_MAX - _const__WEBPACK_IMPORTED_MODULE_2__["LimitEffectValue"].HEAT_MIN)) + _const__WEBPACK_IMPORTED_MODULE_2__["LimitEffectValue"].HEAT_MIN).toFixed(2)})`
+    };
+    this._uploadedImage.style.filter = effectNameToEffectValue[this._effectName];
+  }
+
+  _sliderSetStartPosition() {
+    this._scalePin.style.left = `100%`;
+    this._scaleLevel.style.width = `100%`;
+  }
+
+  _hashtagsBorderColorError() {
+    this._userHashtags.style.borderColor = `red`;
+  }
+
+  _hashtagsBorderColorDefault() {
+    this._userHashtags.style.borderColor = `rgb(118, 118, 118)`;
+  }
+
+  _showErrorMessage(message) {
+    const messageError = this.getElement().querySelector(`.message-error`);
+    messageError.style.display = `flex`;
+    messageError.textContent = message;
+
+    setTimeout(() => {
+      messageError.style.display = `none`;
+    }, 6000);
+  }
+
+  _setShakeAnimation() {
+    this._userHashtags.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._userHashtags.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  setUserHashtagsChangeHandler() {
+    this._userHashtags.addEventListener(`change`, () => {
+      this._hashtagsBorderColorDefault();
+      this._userHashtags.setCustomValidity(Object(_utils_hashtags_validation__WEBPACK_IMPORTED_MODULE_3__["validityHashtags"])(this._userHashtags, this._hashtagsBorderColorError));
+      if (this._userHashtags.validity.customError) {
+        this._showErrorMessage(this._userHashtags.validationMessage);
+        this._setShakeAnimation();
+      }
+    });
   }
 }
 
@@ -1017,9 +1532,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
 
 
-const createPictureTemplate = (picture) => {
-  const {comments, likes, url} = picture;
-
+const createPictureTemplate = ({comments, likes, url}) => {
   return (
     `<a href="#" class="picture__link">
       <img class="picture__img" src="${url}" width="182" height="182" alt="Случайная фотография">
@@ -1036,10 +1549,26 @@ class Picture extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
     super();
 
     this._picture = picture;
+    this._callback = {};
+
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
     return createPictureTemplate(this._picture);
+  }
+
+  _clickHandler() {
+    this._callback.click();
+  }
+
+  setClickHandler(callback) {
+    this._callback.click = callback;
+
+    this.getElement().querySelector(`.picture__img`)
+      .addEventListener(`click`, this._clickHandler);
+    this.getElement().querySelector(`.picture__stats`)
+      .addEventListener(`click`, this._clickHandler);
   }
 }
 
@@ -1076,10 +1605,36 @@ class PicturesContainer extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"
 
 /***/ }),
 
-/***/ "./src/view/uploadNewImgForm.js":
-/*!**************************************!*\
-  !*** ./src/view/uploadNewImgForm.js ***!
-  \**************************************/
+/***/ "./src/view/social-load-more-btn.js":
+/*!******************************************!*\
+  !*** ./src/view/social-load-more-btn.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SocialLoadMoreBtn; });
+/* harmony import */ var _abstract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract */ "./src/view/abstract.js");
+
+
+const createLoadMoreBtnTemplate = () => {
+  return `<button class="social__loadmore" type="button">Загрузить еще</button>`;
+};
+
+class SocialLoadMoreBtn extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  getTemplate() {
+    return createLoadMoreBtnTemplate();
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/view/upload-new-img-form.js":
+/*!*****************************************!*\
+  !*** ./src/view/upload-new-img-form.js ***!
+  \*****************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1109,8 +1664,39 @@ const createNewImgFormTemplate = () => {
 };
 
 class UploadNewImgForm extends _abstract__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super();
+
+    this._callback = {};
+
+    this._imgUploadInputHandler = this._imgUploadInputHandler.bind(this);
+  }
+
   getTemplate() {
     return createNewImgFormTemplate();
+  }
+
+  _imgUploadInputHandler() {
+    this._callback.fileAploaded();
+  }
+
+  setImgUploadInputHandler(callback) {
+    this._callback.fileAploaded = callback;
+
+    this.getElement().querySelector(`.img-upload__input`)
+      .addEventListener(`change`, this._imgUploadInputHandler);
+  }
+
+  getFile() {
+    return this.getElement().querySelector(`.img-upload__input`).files[0];
+  }
+
+  getFormContainer() {
+    return this.getElement().querySelector(`.img-upload__form`);
+  }
+
+  resetInputValue() {
+    this.getElement().querySelector(`.img-upload__input`).value = ``;
   }
 }
 

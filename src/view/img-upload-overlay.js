@@ -1,6 +1,7 @@
 import AbstractView from "./abstract";
-import {startDragging} from "../utils/dragNDrop";
+import {startDragging} from "../utils/drag-n-drop";
 import {ScaleParameter, LimitEffectValue} from "../const";
+import {validityHashtags} from "../utils/hashtags-validation";
 
 const EffectsName = [`none`, `chrome`, `sepia`, `marvin`, `phobos`, `heat`];
 
@@ -12,6 +13,8 @@ const EffectsNameToRussiaName = {
   phobos: `Фобос`,
   heat: `Зной`
 };
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 const createEffectsItemsTemplate = (name) => {
   return (
@@ -63,6 +66,7 @@ const createImgUploadOverlayTemplate = (file) => {
   
           <fieldset class="img-upload__text text">
             <input class="text__hashtags" type="text" name="hashtags" placeholder="#хэш-тег">
+            <p class="message-error"></p>
             <textarea class="text__description" name="description" placeholder="Ваш комментарий..." maxlength="140"></textarea>
           </fieldset>
   
@@ -90,9 +94,11 @@ export default class ImgUploadOverlay extends AbstractView {
     this._uploadedImage = this.getElement().querySelector(`.img-upload__preview`);
     this._imageUploadScale = this.getElement().querySelector(`.img-upload__scale`);
     this._effectsList = this.getElement().querySelector(`.effects__list`);
+    this._userHashtags = this.getElement().querySelector(`.text__hashtags`);
 
     this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
     this._createScaleValueChangeEvent = this._createScaleValueChangeEvent.bind(this);
+    this._hashtagsBorderColorError = this._hashtagsBorderColorError.bind(this);
 
     this._effectName = ``;
   }
@@ -241,5 +247,42 @@ export default class ImgUploadOverlay extends AbstractView {
   _sliderSetStartPosition() {
     this._scalePin.style.left = `100%`;
     this._scaleLevel.style.width = `100%`;
+  }
+
+  _hashtagsBorderColorError() {
+    this._userHashtags.style.borderColor = `red`;
+  }
+
+  _hashtagsBorderColorDefault() {
+    this._userHashtags.style.borderColor = `rgb(118, 118, 118)`;
+  }
+
+  _showErrorMessage(message) {
+    const messageError = this.getElement().querySelector(`.message-error`);
+    messageError.style.display = `flex`;
+    messageError.textContent = message;
+
+    setTimeout(() => {
+      messageError.style.display = `none`;
+    }, 6000);
+  }
+
+  _setShakeAnimation() {
+    this._userHashtags.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._userHashtags.style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  setUserHashtagsChangeHandler() {
+    this._userHashtags.addEventListener(`change`, () => {
+      this._hashtagsBorderColorDefault();
+      this._userHashtags.setCustomValidity(validityHashtags(this._userHashtags, this._hashtagsBorderColorError));
+      if (this._userHashtags.validity.customError) {
+        this._showErrorMessage(this._userHashtags.validationMessage);
+        this._setShakeAnimation();
+      }
+    });
   }
 }

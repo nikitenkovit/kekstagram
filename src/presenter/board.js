@@ -1,9 +1,9 @@
 import FilterView from "../view/filter.js";
 import ImgUploadMessageLoadingView from "../view/img-upload-message-loading.js";
 import PicturesContainerView from "../view/pictures-container";
-import UploadNewImgFormView from "../view/uploadNewImgForm.js";
+import UploadNewImgFormView from "../view/upload-new-img-form.js";
 import PicturePresenter from "./picture.js";
-import NewImagePresenter from "./newImage";
+import NewImagePresenter from "./new-image";
 import {RenderPosition, render, remove} from "../utils/render.js";
 import {UpdateType, FILE_TYPES} from "../const.js";
 
@@ -98,7 +98,7 @@ export default class Board {
 
         newImagePresenter.init(reader.result);
 
-        this._uploadNewImgFormComponent.restInputValue();
+        // this._uploadNewImgFormComponent.resetInputValue();
       });
 
       reader.readAsDataURL(file);

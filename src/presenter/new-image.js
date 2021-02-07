@@ -44,5 +44,6 @@ export default class NewImage {
     this._imgUploadOverlayComponent.setResizeControlMinusClickHandler();
     this._imgUploadOverlayComponent.setResizeControlPlusClickHandler();
     this._imgUploadOverlayComponent.setEffectsListChangeHandler();
+    this._imgUploadOverlayComponent.setUserHashtagsChangeHandler();
   }
 }

@@ -1,5 +1,5 @@
 import PictureView from "../view/picture.js";
-import BigPictureOverlayPresenter from "./bigPictureOverlay";
+import BigPictureOverlayPresenter from "./big-picture-overlay";
 import {render, RenderPosition} from "../utils/render.js";
 
 export default class Picture {

@@ -51,7 +51,7 @@ export default class UploadNewImgForm extends AbstractView {
     return this.getElement().querySelector(`.img-upload__form`);
   }
 
-  restInputValue() {
+  resetInputValue() {
     this.getElement().querySelector(`.img-upload__input`).value = ``;
   }
 }

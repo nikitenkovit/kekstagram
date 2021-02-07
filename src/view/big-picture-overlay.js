@@ -1,6 +1,6 @@
 import AbstractView from "./abstract";
 import CommentView from "./comment";
-import SocialLoadMoreBtnView from "./socialLoadMoreBtn";
+import SocialLoadMoreBtnView from "./social-load-more-btn";
 import {render, RenderPosition, remove} from "../utils/render";
 
 const createBigPictureOverlayTemplate = ({comments, description, likes, url}) => {

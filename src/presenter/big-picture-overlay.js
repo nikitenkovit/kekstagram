@@ -1,5 +1,5 @@
 import BigPictureOverlayView from "../view/big-picture-overlay.js";
-import SocialLoadMoreBtnView from "../view/socialLoadMoreBtn";
+import SocialLoadMoreBtnView from "../view/social-load-more-btn";
 import {COMMENT_COUNT_PER_STEP, UserAction, UpdateType} from "../const.js";
 import {render, RenderPosition, remove} from "../utils/render";
 
