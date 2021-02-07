@@ -16,9 +16,11 @@ export default class NewImage {
 
     render(this._newImageContainer, this._imgUploadOverlayComponent, RenderPosition.BEFOREEND);
 
-    this._imgUploadOverlayComponent.setCancelButtonClickHandler(this._closeOverlay);
-    this._imgUploadOverlayComponent.setDraggingHandler();
-    this._imgUploadOverlayComponent.setScaleLineClickHandler();
+    this._imgUploadOverlayComponent.createMiniatures();
+
+    this._imgUploadOverlayComponent.setInitialImageSettings();
+
+    this._resetHandlers();
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
@@ -33,5 +35,14 @@ export default class NewImage {
       evt.preventDefault();
       this._closeOverlay();
     }
+  }
+
+  _resetHandlers() {
+    this._imgUploadOverlayComponent.setCancelButtonClickHandler(this._closeOverlay);
+    this._imgUploadOverlayComponent.setDraggingHandler();
+    this._imgUploadOverlayComponent.setScaleLineClickHandler();
+    this._imgUploadOverlayComponent.setResizeControlMinusClickHandler();
+    this._imgUploadOverlayComponent.setResizeControlPlusClickHandler();
+    this._imgUploadOverlayComponent.setEffectsListChangeHandler();
   }
 }

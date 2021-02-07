@@ -1,5 +1,32 @@
 import AbstractView from "./abstract";
 import {startDragging} from "../utils/dragNDrop";
+import {ScaleParameter, LimitEffectValue} from "../const";
+
+const EffectsName = [`none`, `chrome`, `sepia`, `marvin`, `phobos`, `heat`];
+
+const EffectsNameToRussiaName = {
+  none: `Оригинал`,
+  chrome: `Хром`,
+  sepia: `Сепия`,
+  marvin: `Марвин`,
+  phobos: `Фобос`,
+  heat: `Зной`
+};
+
+const createEffectsItemsTemplate = (name) => {
+  return (
+    `<li class="effects__item">
+      <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-${name}"
+       value="${name}" ${name === `none` ? `checked` : ``}>
+      <label for="effect-${name}" class="effects__label">
+      <span class="effects__preview effects__preview--${name}">
+      Превью фото ${name === `none` ? `без эффекта` : EffectsNameToRussiaName[name]}
+      </span>
+      ${EffectsNameToRussiaName[name]}
+      </label>
+    </li>`
+  );
+};
 
 const createImgUploadOverlayTemplate = (file) => {
   return (
@@ -30,48 +57,7 @@ const createImgUploadOverlayTemplate = (file) => {
   
           <fieldset class="img-upload__effects effects">
             <ul class="effects__list">
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-none" value="none" checked>
-                <label for="effect-none" class="effects__label">
-                  <span class="effects__preview effects__preview--none">Превью фото без эффекта</span>
-                  Оригинал
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-chrome" value="chrome">
-                <label for="effect-chrome" class="effects__label">
-                  <span class="effects__preview effects__preview--chrome">Превью эффекта Хром</span>
-                  Хром
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-sepia" value="sepia">
-                <label for="effect-sepia" class="effects__label">
-                  <span class="effects__preview effects__preview--sepia">Превью эффекта Сепия</span>
-                  Сепия
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-marvin" value="marvin">
-                <label for="effect-marvin" class="effects__label">
-                  <span class="effects__preview effects__preview--marvin">Превью эффекта Марвин</span>
-                  Марвин
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-phobos" value="phobos">
-                <label for="effect-phobos" class="effects__label">
-                  <span class="effects__preview effects__preview--phobos">Превью эффекта Фобос</span>
-                  Фобос
-                </label>
-              </li>
-              <li class="effects__item">
-                <input type="radio" class="effects__radio visually-hidden" name="effect" id="effect-heat" value="heat">
-                <label for="effect-heat" class="effects__label">
-                  <span class="effects__preview effects__preview--heat">Превью эффекта Зной</span>
-                  Зной
-                </label>
-              </li>
+             ${EffectsName.map((name) => createEffectsItemsTemplate(name))}
             </ul>
           </fieldset>
   
@@ -94,8 +80,21 @@ export default class ImgUploadOverlay extends AbstractView {
 
     this._file = file;
 
+    this._scaleLine = this.getElement().querySelector(`.scale__line`);
+    this._scalePin = this.getElement().querySelector(`.scale__pin`);
+    this._scaleLevel = this.getElement().querySelector(`.scale__level`);
+    this._scaleValue = this.getElement().querySelector(`.scale__value`);
+    this._resizeInputValue = this.getElement().querySelector(`.resize__control--value`);
+    this._resizeControlMinus = this.getElement().querySelector(`.resize__control--minus`);
+    this._resizeControlPlus = this.getElement().querySelector(`.resize__control--plus`);
+    this._uploadedImage = this.getElement().querySelector(`.img-upload__preview`);
+    this._imageUploadScale = this.getElement().querySelector(`.img-upload__scale`);
+    this._effectsList = this.getElement().querySelector(`.effects__list`);
+
     this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
     this._createScaleValueChangeEvent = this._createScaleValueChangeEvent.bind(this);
+
+    this._effectName = ``;
   }
 
   getTemplate() {
@@ -113,42 +112,49 @@ export default class ImgUploadOverlay extends AbstractView {
       .addEventListener(`click`, this._cancelButtonClickHandler);
   }
 
+  createMiniatures() {
+    const miniatures = this.getElement().querySelectorAll(`.effects__preview`);
+
+    miniatures.forEach((elem) => {
+      elem.style.backgroundImage = `url(${this._file})`;
+    });
+  }
+
   _getDragNDropElements() {
     return [
-      this.getElement().querySelector(`.scale__line`),
-      this.getElement().querySelector(`.scale__pin`),
-      this.getElement().querySelector(`.scale__level`),
+      this._scaleLine,
+      this._scalePin,
+      this._scaleLevel
     ];
   }
 
   setDraggingHandler() {
-    this.getElement().querySelector(`.scale__pin`)
-      .addEventListener(`mousedown`, (evt) => {
-        startDragging(evt, this._createScaleValueChangeEvent, ...this._getDragNDropElements());
-      });
+    this._scalePin.addEventListener(`mousedown`, (evt) => {
+      startDragging(evt, this._createScaleValueChangeEvent, ...this._getDragNDropElements());
+    });
   }
 
   _createScaleValueChangeEvent() {
     const event = new Event(`change`);
-    this.getElement().querySelector(`.scale__value`).dispatchEvent(event);
+    this._scaleValue.dispatchEvent(event);
 
     this._changeInputValue();
+
+    this._setEffectValue(this._scaleValue.value);
   }
 
   _changeInputValue() {
-    this.getElement().querySelector(`.scale__value`)
-      .value = parseInt(this.getElement().querySelector(`.scale__level`).style.width, 10);
+    this._scaleValue.value = parseInt(this._scaleLevel.style.width, 10);
   }
 
   setScaleLineClickHandler() {
-    this.getElement().querySelector(`.scale__line`)
-      .addEventListener(`click`, (evt) => {
-        this._changeValueScaleLineOnClick(evt, ...this._getDragNDropElements());
-      });
+    this._scaleLine.addEventListener(`click`, (evt) => {
+      this._changeValueScaleLineOnClick(evt, ...this._getDragNDropElements());
+    });
   }
 
   _changeValueScaleLineOnClick(evt, scaleLine, scalePin, scaleLevel) {
-    if (evt.target !== this.getElement().querySelector(`.scale__pin`)) {
+    if (evt.target !== this._scalePin) {
       evt.preventDefault();
 
       let coordX = evt.offsetX;
@@ -162,5 +168,78 @@ export default class ImgUploadOverlay extends AbstractView {
 
       this._createScaleValueChangeEvent();
     }
+  }
+
+  _resizeImage(sign) {
+    let controlValue = this._resizeInputValue.value;
+
+    controlValue = parseInt(controlValue, 10) - ScaleParameter.STEP * sign;
+
+    if (controlValue > ScaleParameter.MAX) {
+      controlValue = ScaleParameter.MAX;
+    } else if (controlValue < ScaleParameter.MIN) {
+      controlValue = ScaleParameter.MIN;
+    }
+
+    this._uploadedImage.style.transform = `scale(${controlValue / 100})`;
+    this._resizeInputValue.value = controlValue + `%`;
+  }
+
+  setResizeControlMinusClickHandler() {
+    this._resizeControlMinus.addEventListener(`click`, () => {
+      this._resizeImage(1);
+    });
+  }
+
+  setResizeControlPlusClickHandler() {
+    this._resizeControlPlus.addEventListener(`click`, () => {
+      this._resizeImage(-1);
+    });
+  }
+
+  setInitialImageSettings() {
+    this._uploadedImage.style.transform = `scale(${ScaleParameter.DEFAULT / 100})`;
+    this._resizeInputValue.value = ScaleParameter.DEFAULT + `%`;
+    this._imageUploadScale.classList.add(`hidden`);
+
+    this._sliderSetStartPosition();
+  }
+
+  _setEffectName(evt) {
+    this._effectName = evt.target.value;
+  }
+
+  _visibilitySwitchScaleInput() {
+    this._uploadedImage.style.filter = ``;
+
+    // eslint-disable-next-line no-unused-expressions
+    this._effectName === `none`
+      ? this._imageUploadScale.classList.add(`hidden`)
+      : this._imageUploadScale.classList.remove(`hidden`);
+  }
+
+  setEffectsListChangeHandler() {
+    this._effectsList.addEventListener(`change`, (evt) => {
+      this._setEffectName(evt);
+      this._visibilitySwitchScaleInput();
+      this._sliderSetStartPosition();
+      this._setEffectValue(LimitEffectValue.DEFAULT);
+    });
+  }
+
+  _setEffectValue(value) {
+    const effectNameToEffectValue = {
+      'chrome': `grayscale(${value / 100})`,
+      'sepia': `sepia(${value / 100})`,
+      'marvin': `invert(${value + `%`})`,
+      'phobos': `blur(${((value / 100) * LimitEffectValue.PHOBOS_MAX).toFixed(2) + `px`})`,
+      'heat': `brightness(${((value / 100 * (LimitEffectValue.HEAT_MAX - LimitEffectValue.HEAT_MIN)) + LimitEffectValue.HEAT_MIN).toFixed(2)})`
+    };
+    this._uploadedImage.style.filter = effectNameToEffectValue[this._effectName];
+  }
+
+  _sliderSetStartPosition() {
+    this._scalePin.style.left = `100%`;
+    this._scaleLevel.style.width = `100%`;
   }
 }

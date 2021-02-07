@@ -14,3 +14,17 @@ export const UserAction = {
   ADD_PICTURE: `ADD_PICTURE`,
   DELETE_PICTURE: `DELETE_PICTURE`
 };
+
+export const ScaleParameter = {
+  DEFAULT: 75,
+  MIN: 25,
+  MAX: 100,
+  STEP: 25
+};
+
+export const LimitEffectValue = {
+  PHOBOS_MAX: 3,
+  HEAT_MAX: 3,
+  HEAT_MIN: 1,
+  DEFAULT: 100
+};
