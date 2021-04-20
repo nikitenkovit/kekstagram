@@ -1,19 +1,32 @@
-export const COMMENT_COUNT_PER_STEP = 5;
+export const LoadStatus = {
+  INITIAL: `initial`,
+  FETCHING: `fetching`,
+  SUCCESS: `success`,
+  FAILURE: `failure`
+};
+
+export const SortingType = {
+  POPULAR: `popular`,
+  NEW: `new`,
+  DISCUSSED: `discussed`
+};
+
+export const DEFAULT_SORTING_TYPE = SortingType.POPULAR;
+
+export const effectsNames = [`none`, `chrome`, `sepia`, `marvin`, `phobos`, `heat`];
+
+export const EffectsNameToRussiaName = {
+  none: `Оригинал`,
+  chrome: `Хром`,
+  sepia: `Сепия`,
+  marvin: `Марвин`,
+  phobos: `Фобос`,
+  heat: `Зной`
+};
 
 export const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
 
-export const UpdateType = {
-  PATCH: `PATCH`,
-  MINOR: `MINOR`,
-  MAJOR: `MAJOR`,
-  INIT: `INIT`,
-};
-
-export const UserAction = {
-  UPDATE_PICTURE: `UPDATE_PICTURE`,
-  ADD_PICTURE: `ADD_PICTURE`,
-  DELETE_PICTURE: `DELETE_PICTURE`
-};
+export const COMMENT_COUNT_PER_STEP = 5;
 
 export const ScaleParameter = {
   DEFAULT: 75,
@@ -28,3 +41,5 @@ export const LimitEffectValue = {
   HEAT_MIN: 1,
   DEFAULT: 100
 };
+
+export const SHAKE_ANIMATION_TIMEOUT = 600;
