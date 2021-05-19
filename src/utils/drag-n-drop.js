@@ -5,16 +5,13 @@ export const startDragging = (evt, callback, scaleLine, scalePin, scaleLevel) =>
     min: 0,
     max: scaleLine.offsetWidth
   };
-
   let startX = evt.clientX;
 
   const onMouseMove = (moveEvt) => {
     moveEvt.preventDefault();
 
     let shiftX = startX - moveEvt.clientX;
-
     startX = moveEvt.clientX;
-
     scalePin.style.left = (scalePin.offsetLeft - shiftX) + `px`;
 
     if (parseInt(scalePin.style.left, 10) < scalePinPositionLimits.min) {
@@ -25,7 +22,6 @@ export const startDragging = (evt, callback, scaleLine, scalePin, scaleLevel) =>
     }
 
     scaleLevel.style.width = (parseInt(scalePin.style.left, 10) / scalePinPositionLimits.max) * 100 + `%`;
-
     callback();
   };
 

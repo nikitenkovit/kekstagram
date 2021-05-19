@@ -1,47 +1,33 @@
-import React, {useState, useRef, useContext, useEffect} from 'react';
+import React, {useContext, useRef, useState} from 'react';
+import {FILE_TYPES, TEXT_HASHTAGS, TEXT_DESCRIPTION} from "../../const";
+import {ContextApp} from "../../store/reducer";
+import {getNewPicture} from "../../store/selectors";
+import ActionCreator from '../../store/action-creator';
 import ImageUploadOverlay from "../image-upload-overlay/image-upload-overlay";
-import {FILE_TYPES} from "../../const";
-import {createNewPicture} from "../../utils/create-new-picture";
-import {Context} from "../../context";
-
-const initialState = {
-  url: ``,
-  size: ``,
-  filter: ``,
-  userHashtags: ``,
-  userDescription: ``
-};
 
 const ImageUploadForm = () => {
-  const [, setStore] = useContext(Context);
+  const {state, dispatch} = useContext(ContextApp);
   const [needShowOverlay, setNeedShowOverlay] = useState(false);
-
   const formRef = useRef();
   const uploadInput = useRef();
-  const newImageDataRef = useRef(initialState);
+  const newPicture = getNewPicture(state);
 
   const handleCloseOverlay = () => {
     uploadInput.current.value = ``;
     formRef.current.reset();
-
     setNeedShowOverlay(() => false);
   };
 
   const handleUploadInputChange = () => {
     const file = uploadInput.current.files[0];
     const fileName = file.name.toLowerCase();
-
     const matches = FILE_TYPES.some((type) => fileName.endsWith(type));
 
     if (matches) {
       const reader = new FileReader();
 
       reader.addEventListener(`load`, () => {
-        newImageDataRef.current = {
-          ...newImageDataRef.current,
-          url: reader.result
-        };
-
+        dispatch(ActionCreator.addUrl(reader.result));
         setNeedShowOverlay(() => true);
       });
 
@@ -52,32 +38,28 @@ const ImageUploadForm = () => {
   const handleFormSubmit = (evt) => {
     evt.preventDefault();
 
-    createNewPicture(setStore, newImageDataRef.current);
+    const textFieldsValue = {
+      userHashtags: [...evt.currentTarget.elements].find((it) => it.classList.value === TEXT_HASHTAGS).value,
+      userDescription: [...evt.currentTarget.elements].find((it) => it.classList.value === TEXT_DESCRIPTION).value
+    };
 
+    dispatch(ActionCreator.createNewPicture(newPicture, textFieldsValue));
     handleCloseOverlay();
-
-    newImageDataRef.current = initialState;
+    dispatch(ActionCreator.resetNewPictureData());
   };
-
-  useEffect(() => {
-    formRef.current.addEventListener(`submit`, handleFormSubmit);
-  }, []);
 
   return (
     <section className="img-upload">
       <div className="img-upload__wrapper">
         <h2 className="img-upload__title visually-hidden">Загрузка фотографии</h2>
-
         <form className="img-upload__form" id="upload-select-image" method="post" encType="multipart/form-data"
-          action="https://js.dump.academy/kekstagram" autoComplete="off" ref={formRef}>
-
+          action="https://js.dump.academy/kekstagram" autoComplete="off" ref={formRef} onSubmit={handleFormSubmit}>
           <fieldset className="img-upload__start">
             <input type="file" id="upload-file" className="img-upload__input visually-hidden"
               name="filename" required onChange={handleUploadInputChange} ref={uploadInput}/>
             <label htmlFor="upload-file" className="img-upload__label img-upload__control">Загрузить</label>
           </fieldset>
-
-          {needShowOverlay && <ImageUploadOverlay newImageData={newImageDataRef} onOverlayClose={handleCloseOverlay}/>}
+          {needShowOverlay && <ImageUploadOverlay onOverlayClose={handleCloseOverlay}/>}
         </form>
       </div>
     </section>

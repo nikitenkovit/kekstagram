@@ -2,34 +2,22 @@ import {axiosInstance} from "./api";
 import {LoadStatus} from "../const";
 import {adaptToClient} from "./adapt-to-client";
 
-export const fetchPictureList = async (store, setStore) => {
-  setStore(() => {
-    return {
-      ...store,
-      status: LoadStatus.FETCHING
-    };
-  });
-
+export const fetchPictures = async () => {
   let pictures;
 
   try {
     pictures = await axiosInstance.get(`/data`);
   } catch (e) {
-    setStore(() => {
-      return {
-        ...store,
-        status: LoadStatus.FAILURE
-      };
-    });
-
-    return;
+    return {
+      pictureList: [],
+      status: LoadStatus.FAILURE
+    };
   }
 
-  setStore(() => {
-    return {
-      ...store,
-      pictureList: pictures.data.map(adaptToClient),
-      status: LoadStatus.SUCCESS
-    };
-  });
+  const adaptedPictures = pictures.data.map(adaptToClient);
+
+  return {
+    pictureList: adaptedPictures,
+    status: LoadStatus.SUCCESS
+  };
 };

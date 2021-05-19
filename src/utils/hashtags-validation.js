@@ -1,5 +1,4 @@
-const MAXIMUM_HASHTAGS = 5;
-const HASHTAG_MAX_LENGTH = 20;
+import {MAXIMUM_HASHTAGS, HASHTAG_MAX_LENGTH} from "../const";
 
 export const validityHashtags = (userHashtags, errorColor) => {
   let arrayHashtags = userHashtags.value.split(` `);
@@ -7,7 +6,6 @@ export const validityHashtags = (userHashtags, errorColor) => {
   if (!userHashtags.value) {
     return ``;
   }
-
   if (arrayHashtags.length > MAXIMUM_HASHTAGS) {
     errorColor();
     return `Хэш-тегов должно быть не больше пяти`;
@@ -37,6 +35,5 @@ export const validityHashtags = (userHashtags, errorColor) => {
       }
     }
   }
-
   return ``;
 };

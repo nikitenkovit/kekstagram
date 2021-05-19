@@ -1,0 +1,9 @@
+export const SET_PICTURES_LIST = `fetch-pictures-list`;
+export const SORTING_PICTURES = `sorting-pictures`;
+export const CHANGE_LIKE_NUMBER = `change-like-number`;
+export const ADD_NEW_COMMENT = `add-new-comment`;
+export const CREATE_NEW_PICTURE = `create-new-picture`;
+export const ADD_URL = `add-url`;
+export const ADD_SIZE = `add-size`;
+export const ADD_FILTER = `add-filter`;
+export const RESET_NEW_PICTURE_DATA = `reset-new-picture-data`;

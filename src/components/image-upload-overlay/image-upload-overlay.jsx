@@ -1,11 +1,16 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import PropTypes from "prop-types";
-import {effectsNames, ScaleParameter, LimitEffectValue} from "../../const";
+import {effectsNames, ScaleParameter, LimitEffectValue, SizeImage} from "../../const";
 import {startDragging} from "../../utils/drag-n-drop";
+import {ContextApp} from "../../store/reducer";
+import ActionCreator from '../../store/action-creator';
+import {getNewPicture} from "../../store/selectors";
 import EffectItemTemplate from "../effect-item-template/effect-item-template";
 import ImageUploadTextFields from "../image-upload-text-fields/image-upload-text-fields";
 
-const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
+const ImageUploadOverlay = ({onOverlayClose}) => {
+  const {state, dispatch} = useContext(ContextApp);
+  const {url} = getNewPicture(state);
   const effectNameRef = useRef();
   const resizeInputRef = useRef();
   const imagePreviewRef = useRef();
@@ -18,7 +23,6 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
   const handleEscKeyDown = (evt) => {
     if (evt.code === `Escape`) {
       evt.preventDefault();
-
       onOverlayClose();
     }
   };
@@ -45,7 +49,6 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
     resizeInputRef.current.value = ScaleParameter.DEFAULT + `%`;
 
     hideUploadScale();
-
     sliderSetStartPosition();
   };
 
@@ -61,10 +64,7 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
     imagePreviewRef.current.style.transform = `scale(${controlValue / 100})`;
     resizeInputRef.current.value = controlValue + `%`;
 
-    newImageData.current = {
-      ...newImageData.current,
-      size: `scale(${controlValue / 100})`
-    };
+    dispatch(ActionCreator.addSize(`scale(${controlValue / 100})`));
   };
 
   const resetFilter = () => {
@@ -74,10 +74,8 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
   const visibilitySwitchScaleInput = () => {
     if (effectNameRef.current === `none`) {
       hideUploadScale();
-
       return;
     }
-
     showUploadScale();
   };
 
@@ -93,10 +91,7 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
 
     imagePreviewRef.current.style.filter = effectNameToEffectValue[effectNameRef.current];
 
-    newImageData.current = {
-      ...newImageData.current,
-      filter: effectNameToEffectValue[effectNameRef.current]
-    };
+    dispatch(ActionCreator.addFilter(effectNameToEffectValue[effectNameRef.current]));
   };
 
   const handleEffectItemChange = (evt) => {
@@ -113,7 +108,6 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
 
   const handleScaleValueChange = () => {
     changeInputValue();
-
     setEffectValue(parseInt(scaleValueRef.current.value, 10));
   };
 
@@ -138,7 +132,6 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
 
   useEffect(() => {
     setInitialImageSettings();
-
     document.addEventListener(`keydown`, handleEscKeyDown);
 
     return () => {
@@ -154,19 +147,19 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
 
             <fieldset className="img-upload__resize resize">
               <button type="button" className="resize__control resize__control--minus"
-                onClick={() => handleResizeImage(1)}>
+                onClick={() => handleResizeImage(SizeImage.DECREASE)}>
                 Уменьшить
               </button>
               <input type="text" className="resize__control resize__control--value"
                 defaultValue="50%" title="Image Scale" name="scale" readOnly ref={resizeInputRef}/>
               <button type="button" className="resize__control resize__control--plus"
-                onClick={() => handleResizeImage(-1)}>
+                onClick={() => handleResizeImage(SizeImage.INCREASE)}>
                 Увеличить
               </button>
             </fieldset>
 
             <div className="img-upload__preview" ref={imagePreviewRef}>
-              <img src={newImageData.current.url} alt="Предварительный просмотр фотографии"/>
+              <img src={url} alt="Предварительный просмотр фотографии"/>
             </div>
 
             <fieldset className="img-upload__scale scale" ref={uploadScaleRef}>
@@ -192,11 +185,11 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
           <fieldset className="img-upload__effects effects">
             <ul className="effects__list" onChange={handleEffectItemChange}>
               {effectsNames.map((name) =>
-                <EffectItemTemplate key={name} name={name} pictureUrl={newImageData.current.url}/>)}
+                <EffectItemTemplate key={name} name={name} pictureUrl={url}/>)}
             </ul>
           </fieldset>
 
-          <ImageUploadTextFields newImageData={newImageData}/>
+          <ImageUploadTextFields/>
 
           <button type="submit" className="img-upload__submit" id="upload-submit">Опубликовать</button>
         </div>
@@ -206,7 +199,6 @@ const ImageUploadOverlay = ({newImageData, onOverlayClose}) => {
 };
 
 ImageUploadOverlay.propTypes = {
-  newImageData: PropTypes.object,
   onOverlayClose: PropTypes.func.isRequired,
 };
 

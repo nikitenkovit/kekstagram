@@ -4,12 +4,10 @@ import smallPictureProp from './small-picture.prop';
 
 const SmallPicture = ({picture, onPictureLinkClick}) => {
   const {comments, likes, url, filter} = picture;
-
   const imageRef = useRef();
 
   const handlePictureLinkClick = (evt) => {
     evt.preventDefault();
-
     onPictureLinkClick(picture.id);
   };
 

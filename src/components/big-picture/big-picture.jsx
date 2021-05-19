@@ -1,14 +1,19 @@
 import React, {useState, useEffect, useRef, useContext} from 'react';
 import PropTypes from "prop-types";
-import Comment from "../comment/comment";
 import {COMMENT_COUNT_PER_STEP} from "../../const";
 import {nanoid} from "nanoid";
-import {Context} from "../../context";
+import {ContextApp} from "../../store/reducer";
+import {getPictures} from "../../store/selectors";
+import ActionCreator from '../../store/action-creator';
+import Comment from "../comment/comment";
 import SubmitComment from "../submit-comment/submit-comment";
 
 const BigPicture = ({pictureId, onBigPictureClose}) => {
-  const [store, setStore] = useContext(Context);
-
+  const {state, dispatch} = useContext(ContextApp);
+  const pictureList = getPictures(state);
+  const imageRef = useRef();
+  const LikeNumberRef = useRef();
+  const renderedCommentsCount = useRef(COMMENT_COUNT_PER_STEP);
   const {comments,
     description,
     likes,
@@ -16,20 +21,15 @@ const BigPicture = ({pictureId, onBigPictureClose}) => {
     filter,
     size,
     isLike,
-    id} = store.pictureList.find((it) => it.id === pictureId);
-
+    id} = pictureList.find((it) => it.id === pictureId);
   const [currentCommentList, setCurrentCommentList] = useState(comments.slice(0, COMMENT_COUNT_PER_STEP));
-
-  const imageRef = useRef();
-  const LikeNumberRef = useRef();
-  const renderedCommentsCount = useRef(COMMENT_COUNT_PER_STEP);
   const needShowLoadMoreButton = currentCommentList.length < comments.length;
   let currentLikeNumber = likes;
+  let currentIsLike = isLike;
 
   const handleShowLoadMoreButtonClick = () => {
     setCurrentCommentList(() => {
       renderedCommentsCount.current += COMMENT_COUNT_PER_STEP;
-
       return comments.slice(0, renderedCommentsCount.current);
     });
   };
@@ -37,7 +37,6 @@ const BigPicture = ({pictureId, onBigPictureClose}) => {
   const handleEscKeyDown = (evt) => {
     if (evt.code === `Escape`) {
       evt.preventDefault();
-
       onBigPictureClose(() => false);
     }
   };
@@ -48,9 +47,9 @@ const BigPicture = ({pictureId, onBigPictureClose}) => {
   };
 
   const changeLikeNumber = () => {
+    currentIsLike = !isLike;
     if (LikeNumberRef.current.classList.contains(`likes-count--active`)) {
       currentLikeNumber--;
-
       return;
     }
     currentLikeNumber++;
@@ -58,29 +57,11 @@ const BigPicture = ({pictureId, onBigPictureClose}) => {
 
   const handleLikeClick = () => {
     changeLikeNumber();
-
-    setStore((state) => {
-      return {
-        ...state,
-        pictureList: [
-          ...state.pictureList.map((it) => {
-            if (it.id === id) {
-              return {
-                ...it,
-                isLike: !isLike,
-                likes: currentLikeNumber
-              };
-            }
-            return it;
-          })
-        ]
-      };
-    });
+    dispatch(ActionCreator.changeLikeNumber(id, currentLikeNumber, currentIsLike));
   };
 
   useEffect(() => {
     setEffectsOnPicture();
-
     document.addEventListener(`keydown`, handleEscKeyDown);
 
     return () => {
